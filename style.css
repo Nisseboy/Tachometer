@@ -1,0 +1,28 @@
+html, body, .flex-col {
+  display: flex;
+  flex-direction: column;
+}
+
+input, button {
+  width: fit-content;
+}
+
+canvas {
+  max-width: 50vw;
+}
+
+#pages-buttons {
+  margin-bottom: 2rem;
+}
+.page {
+  display: none;
+}
+.shown {
+  display:flex;
+  flex-direction: column;
+}
+
+#gears {
+  width: 50%;
+  height: 3rem;
+}

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dyno</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="pages-buttons"></div>
+
+
+  <div class="page shown" id="setup">
+    <button onclick="ser.connect({ baudRate: 31250 });">Connect Serial</button>
+
+
+    <label for="gears">Gears</label>
+    <textarea name="" id="gears"></textarea>
+    <div id="gear-templates"></div>
+
+    <div>
+      <label for="wheelR-input">Wheel Radius</label>
+      <input type="number" name="" id="wheelR-input">
+    </div>
+
+    <div>
+      <label for="pulse-input">Pulses per Rotation</label>
+      <input type="number" name="" id="pulse-input">
+    </div>
+  </div>
+
+
+  <div class="page" id="tacho">
+    <div id="gear-selector" style="display: flex; gap: 0.2rem;">
+      <button onclick="changeGear(-1)"><</button>
+      <div>1</div>
+      <button onclick="changeGear(1)">></button>
+    </div>
+    <div id="rpm">0</div>
+
+    <div>
+      <label for="dyno-button">Dyno</label>
+      <input type="checkbox" name="" id="dyno-button">
+    </div>
+
+    <canvas id="curve-canvas"></canvas>
+  </div>
+
+
+
+  <script src="Vec.js"></script>
+  <script src="serial.js"></script>
+  <script src="serial2.js"></script>
+  <script src="index.js"></script>
+</body>
+</html>
