@@ -257,7 +257,7 @@ function addDt(_dt) {
   rpm = 1 / fullRot * 60 * ratio;
   if (dt >= 2) rpm = 0;
   rpmGauge.innerText = "rpm: " + Math.round(rpm);
-  kmhGauge.innerText = "kmh: " + Math.round(rpm / ratio * 60 * (Math.PI * settings.wheelR) / 1000);
+  kmhGauge.innerText = "kmh: " + Math.round(rpm / ratio * 60 * (Math.PI * settings.wheelR * 2) / 1000);
 
   if (dyno) {
     if (lastrpm == 0 && rpm != 0) {
