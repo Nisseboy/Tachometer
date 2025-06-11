@@ -336,3 +336,9 @@ function denoiseArray(arr, windowSize = 5) {
   }
   return result;
 }
+
+function downloadImage(elem) {
+  let image = curveCanvas.toDataURL("image/jpg");
+  elem.href = image;
+  elem.download = document.getElementById("name-input").value + ".jpg";
+}

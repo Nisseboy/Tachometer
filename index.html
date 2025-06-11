@@ -13,7 +13,6 @@
   <div class="page shown" id="setup">
     <button onclick="ser.connect({ baudRate: 31250 });">Connect Serial</button>
 
-
     <label for="gears">Gears</label>
     <textarea name="" id="gears"></textarea>
     <div id="gear-templates"></div>
@@ -26,6 +25,12 @@
     <div>
       <label for="pulse-input">Pulses per Rotation</label>
       <input type="number" name="" id="pulse-input">
+    </div>
+
+    
+    <div>
+      <label for="name-input">Dyno Image Name</label>
+      <input type="text" name="" id="name-input" value="dyno">
     </div>
   </div>
 
@@ -45,7 +50,7 @@
     </div>
 
     <canvas id="curve-canvas"></canvas>
-    <button>Save Image</button>
+    <a id="download" download="dyno.jpg" href="" onclick="downloadImage(this);">Save Image</a>
   </div>
 
 
