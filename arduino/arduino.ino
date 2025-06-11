@@ -4,19 +4,14 @@ volatile bool newPulse = false;
 
 void setup() {
   Serial.begin(31250);
-
-  /*
   
   pinMode(2, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(2), pulseISR, FALLING);
-  */
+  
 }
 
   
 void loop() {
-  pulseISR();
-  delay(20);
-
   if (newPulse) {
     noInterrupts();
     unsigned long interval = pulseInterval;
