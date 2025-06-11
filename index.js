@@ -5,6 +5,7 @@ let pagesButtons = document.getElementById("pages-buttons");
 let gearSelector = document.getElementById("gear-selector");
 let rpmGauge = document.getElementById("rpm");
 let kmhGauge = document.getElementById("kmh");
+let nameInput = document.getElementById("name-input");
 
 
 let curveCanvas = document.getElementById("curve-canvas");
@@ -108,7 +109,7 @@ function strokeRect(ctx, pos, size) {
   ctx.stroke();
 }
 
-function renderGraph(ctx, data, lines, hor, ver) {
+function renderGraph(ctx, name, data, lines, hor, ver) {
   if (data.length == 0) return;
 
   let hasX = data[0][0] instanceof Vec;
@@ -186,8 +187,8 @@ function renderGraph(ctx, data, lines, hor, ver) {
   ctx.textAlign = "center";
   ctx.fillText(hor.name, 0, 0);
   ctx.restore();
-  ctx.textAlign = "left";
 
+  ctx.textAlign = "left";
   ctx.textBaseline = "top";
   
   for (let j = 0; j < data.length; j++) {
@@ -211,6 +212,11 @@ function renderGraph(ctx, data, lines, hor, ver) {
     }
     ctx.stroke();
   }
+
+  ctx.fillStyle = "rgb(0, 0, 0)";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "top";
+  ctx.fillText(name, ctx.canvas.width / 2, 0);
 }
 
 
@@ -244,7 +250,7 @@ function addDt(dt) {
   let ratio = finalDrive * gears[gear - 1];
   lastrpm = rpm;
   rpm = 1 / fullRot * 60 * ratio;
-  if (dt >= 1) rpm = 0;
+  if (dt >= 2) rpm = 0;
   rpmGauge.innerText = "rpm: " + Math.round(rpm);
   kmhGauge.innerText = "kmh: " + Math.round(rpm / ratio * 60 * (Math.PI * settings.wheelR) / 1000);
 
@@ -270,11 +276,10 @@ function addDt(dt) {
 
     highestrpm = Math.max(rpm, highestrpm);
 
-    renderGraph(curveCtx, lines, linesInfo, {name: "rpm"}, {name: "power/torque"});
+    renderGraph(curveCtx, nameInput.value, lines, linesInfo, {name: "rpm"}, {name: "power/torque"});
   }
-  
-
 }
+nameInput.onchange = () => {renderGraph(curveCtx, nameInput.value, lines, linesInfo, {name: "rpm"}, {name: "power/torque"});};
 
 
 let lastPulse = 0;
@@ -303,7 +308,7 @@ if (false) {
 
   setInterval(() => {
     if (performance.now() - lastPulse > 200) {
-      addDt(1);
+      addDt(2);
     }
   }, 16);
 }
@@ -340,5 +345,5 @@ function denoiseArray(arr, windowSize = 5) {
 function downloadImage(elem) {
   let image = curveCanvas.toDataURL("image/jpg");
   elem.href = image;
-  elem.download = document.getElementById("name-input").value + ".jpg";
+  elem.download = nameInput.value + ".jpg";
 }
