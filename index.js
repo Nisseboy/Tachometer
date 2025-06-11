@@ -58,7 +58,7 @@ function assignInput(settingName, defaultValue, id, onchange = () => {}) {
 }
 
 assignInput("gears", gearsTemplates["AM6"], "gears", updateValues);
-assignInput("wheelR", 0.6, "wheelR-input");
+assignInput("wheelR", 0.3, "wheelR-input");
 assignInput("pulses", 5, "pulse-input");
 
 let finalDrive;
