@@ -60,6 +60,7 @@ function assignInput(settingName, defaultValue, id, onchange = () => {}) {
 assignInput("gears", gearsTemplates["AM6"], "gears", updateValues);
 assignInput("wheelR", 0.3, "wheelR-input");
 assignInput("pulses", 5, "pulse-input");
+assignInput("average", 1, "average");
 
 let finalDrive;
 let gears;
@@ -245,7 +246,11 @@ let rpm = undefined;
 let lastrpm = undefined;
 let dts = [];
 
-function addDt(dt) {
+function addDt(_dt) {
+  dts.push(_dt);
+  while (dts.length > settings.average) dts.shift();
+  let dt = dts.reduce((a, b) => a + b) / dts.length;
+
   let fullRot = dt * settings.pulses;
   let ratio = finalDrive * gears[gear - 1];
   lastrpm = rpm;
@@ -287,7 +292,7 @@ let growing = false;
 let currentDt = 200000;
 if (false) {
   setInterval(() => {
-    addDt(currentDt / 1000000);
+    addDt(currentDt / 1000000 + Math.random() * 0.0001);
     if (growing) currentDt *= 0.995;
     if (currentDt < 50000) currentDt = 2000000;
   }, 16);
