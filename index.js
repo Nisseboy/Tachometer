@@ -227,6 +227,7 @@ let lineTorque = undefined;
 let linePower = undefined;
 let linesInfo = [];
 let highestrpm = 0;
+let saveDts = [];
 document.getElementById("dyno-button").onchange = e => {
   growing = true;
 
@@ -234,13 +235,35 @@ document.getElementById("dyno-button").onchange = e => {
   dyno = e.target.checked;
 
   if (dyno) {
-    lines = [[], []];
-    lineTorque = lines[0];
-    linePower = lines[1];
-    linesInfo = [{c: new Vec(255, 255, 0), name: "Torque (nm)"}, {c: new Vec(255, 0, 0), name: "Power (hp)"}];
-    highestrpm = 0;
+    startDyno();
   }
 };
+function startDyno() {
+  lines = [[], []];
+  lineTorque = lines[0];
+  linePower = lines[1];
+  linesInfo = [{c: new Vec(255, 255, 0), name: "Torque (nm)"}, {c: new Vec(255, 0, 0), name: "Power (hp)"}];
+  highestrpm = 0;
+  saveDts = [];
+  dyno = true;
+  document.getElementById("dyno-button").checked = true;
+}
+function stopDyno() {
+  dyno = false;
+  document.getElementById("dyno-button").checked = false;
+}
+document.getElementById("save-button").onclick = () => {
+  localStorage.setItem("tachometer-data", JSON.stringify(saveDts));
+}
+document.getElementById("load-button").onclick = () => {
+  let data = JSON.parse(localStorage.getItem("tachometer-data"));
+  if (!data) return;
+  
+  startDyno();
+  for (let dt of data) addDt(dt);
+  stopDyno();
+}
+
 
 let rpm = undefined;
 let lastrpm = undefined;
@@ -260,6 +283,7 @@ function addDt(_dt) {
   kmhGauge.innerText = "kmh: " + Math.round(rpm / ratio * 60 * (Math.PI * settings.wheelR * 2) / 1000);
 
   if (dyno) {
+    saveDts.push(_dt);
     if (lastrpm == 0 && rpm != 0) {
       lineTorque = [];
       linePower = [];
