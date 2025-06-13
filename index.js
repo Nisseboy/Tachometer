@@ -1,3 +1,12 @@
+class Run {
+  constructor() {
+    this.hp = [];
+    this.tq = [];
+  }
+}
+
+
+
 const inertia = 10;
 
 let pages = [document.getElementById("setup"), document.getElementById("tacho")]
@@ -6,6 +15,8 @@ let gearSelector = document.getElementById("gear-selector");
 let rpmGauge = document.getElementById("rpm");
 let kmhGauge = document.getElementById("kmh");
 let nameInput = document.getElementById("name-input");
+
+let runSelector = document.getElementById("runs");
 
 
 let curveCanvas = document.getElementById("curve-canvas");
@@ -110,7 +121,7 @@ function strokeRect(ctx, pos, size) {
   ctx.stroke();
 }
 
-function renderGraph(ctx, name, data, lines, hor, ver) {
+function renderGraph(ctx, name, data, lines, hor, ver, _max) {
   if (data.length == 0) return;
 
   let hasX = data[0][0] instanceof Vec;
@@ -129,6 +140,9 @@ function renderGraph(ctx, name, data, lines, hor, ver) {
       if (pt.y > max.y) max.y = pt.y;
     }
   }
+
+  if (_max.x) max.x = _max.x;
+  if (_max.y) max.y = _max.y;
 
   let scale = size._divV(max);
 
@@ -222,12 +236,13 @@ function renderGraph(ctx, name, data, lines, hor, ver) {
 
 
 let dyno = false;
-let lines = [];
-let lineTorque = undefined;
-let linePower = undefined;
-let linesInfo = [];
 let highestrpm = 0;
 let saveDts = [];
+
+let run = new Run();
+let runs = [run];
+let shownRun = 0;
+
 document.getElementById("dyno-button").onchange = e => {
   growing = true;
 
@@ -239,18 +254,29 @@ document.getElementById("dyno-button").onchange = e => {
   }
 };
 function startDyno() {
-  lines = [[], []];
-  lineTorque = lines[0];
-  linePower = lines[1];
-  linesInfo = [{c: new Vec(255, 255, 0), name: "Torque (nm)"}, {c: new Vec(255, 0, 0), name: "Power (hp)"}];
-  highestrpm = 0;
   saveDts = [];
   dyno = true;
   document.getElementById("dyno-button").checked = true;
+  runSelector.replaceChildren();
+
+  runs = [];
+  nextRun();
 }
 function stopDyno() {
   dyno = false;
   document.getElementById("dyno-button").checked = false;
+}
+function nextRun() {
+  highestrpm = 0;
+  run = new Run();
+  runs.push(run);
+  shownRun = runs.length - 1;
+  let s = shownRun;
+
+  let elem = document.createElement("button");
+  elem.innerText = s + 1;
+  elem.onclick = () => {shownRun = s; render()}
+  runSelector.appendChild(elem);
 }
 document.getElementById("save-button").onclick = () => {
   localStorage.setItem("tachometer-data", JSON.stringify(saveDts));
@@ -286,11 +312,7 @@ function addDt(_dt) {
   if (dyno) {
     saveDts.push(_dt);
     if (lastrpm == 0 && rpm != 0) {
-      lineTorque = [];
-      linePower = [];
-      lines.push(lineTorque, linePower);
-      linesInfo.push({c: new Vec(255, 255, 0)}, {c: new Vec(255, 0, 0)});
-      highestrpm = 0;
+      nextRun();
     } 
 
     let diff = rpm - lastrpm;
@@ -300,16 +322,34 @@ function addDt(_dt) {
     let power = torque * rpm / 7127;
 
     if (rpm > highestrpm && power > 0) {
-      lineTorque.push(new Vec(rpm, torque));
-      linePower.push(new Vec(rpm, power));
+      run.hp.push(new Vec(rpm, power));
+      run.tq.push(new Vec(rpm, torque));
     }
 
     highestrpm = Math.max(rpm, highestrpm);
-
-    renderGraph(curveCtx, nameInput.value, lines, linesInfo, {name: "rpm"}, {name: "power/torque"});
   }
+
+  render();
 }
-nameInput.onchange = () => {renderGraph(curveCtx, nameInput.value, lines, linesInfo, {name: "rpm"}, {name: "power/torque"});};
+
+function render() {
+  let lineInfo = [{c: new Vec(255, 255, 0), name: "Torque (nm)"}, {c: new Vec(255, 0, 0), name: "Power (hp)"}];
+
+  let renderRuns = [];
+  renderRuns.push(runs[shownRun].tq);
+  renderRuns.push(runs[shownRun].hp);
+  
+  let max = new Vec(0, 0);
+  for (let r of runs) {
+    for (let p of [...r.tq, ...r.hp]) {
+      max.x = Math.max(max.x, p.x);
+      max.y = Math.max(max.y, p.y);
+    }
+  }
+
+  renderGraph(curveCtx, nameInput.value + " - " + (shownRun + 1), renderRuns, lineInfo, {name: "rpm"}, {name: "power/torque"}, max);
+}
+nameInput.onchange = () => {render()};
 
 
 let lastPulse = 0;
@@ -337,8 +377,8 @@ if (false) {
   }
 
   setInterval(() => {
-    if (performance.now() - lastPulse > 200) {
-      //addDt(2);
+    if (performance.now() - lastPulse > 400) {
+      addDt(2);
     }
   }, 16);
 }
@@ -377,3 +417,5 @@ function downloadImage(elem) {
   elem.href = image;
   elem.download = nameInput.value + ".jpg";
 }
+
+

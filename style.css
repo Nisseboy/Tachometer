@@ -8,7 +8,7 @@ input, button {
 }
 
 canvas {
-  max-width: 50vw;
+  max-width: 100vw;
 }
 
 #pages-buttons {
