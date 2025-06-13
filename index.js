@@ -270,6 +270,7 @@ let lastrpm = undefined;
 let dts = [];
 
 function addDt(_dt) {
+  
   dts.push(_dt);
   while (dts.length > settings.average) dts.shift();
   let dt = dts.reduce((a, b) => a + b) / dts.length;
@@ -337,7 +338,7 @@ if (false) {
 
   setInterval(() => {
     if (performance.now() - lastPulse > 200) {
-      addDt(2);
+      //addDt(2);
     }
   }, 16);
 }

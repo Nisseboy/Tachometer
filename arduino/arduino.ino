@@ -27,7 +27,9 @@ void loop() {
 
 void pulseISR() {
   unsigned long currentTime = micros();
-  pulseInterval = currentTime - lastPulseTime;
+  unsigned long pi = currentTime - lastPulseTime;
+  if (pi < 1000u) return;
+  pulseInterval = pi;
   lastPulseTime = currentTime;
   newPulse = true;
 }
