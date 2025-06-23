@@ -313,8 +313,8 @@ let cum = 0;
 let preventDoubling = false;
 
 function addDt(__dt) {
-  elapsedTime += _dt;
-  
+  elapsedTime += __dt;
+
   if (dyno) {
     saveDts.push(__dt);
     shownDts[0].push(new Vec(elapsedTime, __dt));
