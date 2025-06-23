@@ -261,11 +261,12 @@ document.getElementById("dyno-button").onchange = e => {
 function startDyno() {
   saveDts = [];
   shownDts = [];
+  rpms = [];
   shownDtsIndex = -1;
   dyno = true;
   document.getElementById("dyno-button").checked = true;
   runSelector.replaceChildren();
-
+  elapsedTime = 0;
   runs = [];
   nextRun();
 }
@@ -301,6 +302,8 @@ document.getElementById("load-button").onclick = () => {
 
 
 let rpm = undefined;
+let rpms = [];
+let elapsedTime = 0;
 let lastrpm = undefined;
 let lastDt = 0;
 let dts = [];
@@ -336,6 +339,7 @@ function addDt(__dt) {
 
   lastDt = _dt;
   dts.push(_dt);
+  elapsedTime += _dt;
   
 
   while (dts.length > settings.average) dts.shift();
@@ -351,6 +355,7 @@ function addDt(__dt) {
 
   if (dyno) {
     shownDts[shownDtsIndex] = dt;
+    rpms.push(new Vec(elapsedTime, rpm));
 
     if (lastrpm == 0 && rpm != 0) {
       nextRun();
@@ -374,11 +379,16 @@ function addDt(__dt) {
 }
 
 function render() {
-  if (dtButton.checked) {
+  if (dtButton.value == 2) {
+    let lineInfo = [{c: new Vec(255, 0, 0), name: "RPM"}];
+    
+    renderGraph(curveCtx, nameInput.value + " - RPM", [rpms], lineInfo, {name: "Time (s)"}, {name: "RPM"});
+  }
+  else if (dtButton.value == 1) {
     let lineInfo = [{c: new Vec(100, 0, 0), name: "Uncorrected (s)"}, {c: new Vec(255, 255, 0), name: "Corrected (s)"}];
     
-    renderGraph(curveCtx, nameInput.value, [saveDts, shownDts], lineInfo, {name: "i"}, {name: "dt"});
-  } else {
+    renderGraph(curveCtx, nameInput.value + " - DTs", [saveDts, shownDts], lineInfo, {name: "i"}, {name: "dt"});
+  } else if (dtButton.value == 0) {
     let lineInfo = [{c: new Vec(255, 255, 0), name: "Torque (nm)"}, {c: new Vec(255, 0, 0), name: "Power (hp)"}];
 
     let renderRuns = [];
