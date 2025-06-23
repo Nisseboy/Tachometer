@@ -74,6 +74,7 @@ assignInput("wheelR", 0.3, "wheelR-input");
 assignInput("pulses", 5, "pulse-input");
 assignInput("average", 1, "average");
 assignInput("cutoff", 0, "cutoff");
+//assignInput("missDetection", false, "missDetection");
 
 let finalDrive;
 let gears;
@@ -245,6 +246,8 @@ let run = new Run();
 let runs = [run];
 let shownRun = 0;
 
+let shouldRender = true;
+
 document.getElementById("dyno-button").onchange = e => {
   growing = true;
 
@@ -258,6 +261,7 @@ document.getElementById("dyno-button").onchange = e => {
 function startDyno() {
   saveDts = [];
   shownDts = [];
+  shownDtsIndex = -1;
   dyno = true;
   document.getElementById("dyno-button").checked = true;
   runSelector.replaceChildren();
@@ -289,27 +293,48 @@ document.getElementById("load-button").onclick = () => {
   if (!data) return;
   
   startDyno();
+  shouldRender = false;
   for (let dt of data) addDt(dt);
   stopDyno();
+  shouldRender = true;
 }
 
 
 let rpm = undefined;
 let lastrpm = undefined;
+let lastDt = 0;
 let dts = [];
 let shownDts = [];
+let shownDtsIndex = -1;
 let cum = 0;
+let preventDoubling = false;
 
 function addDt(__dt) {
-  if (dyno) saveDts.push(__dt);
+  if (dyno) {
+    saveDts.push(__dt);
+    shownDtsIndex++;
+  }
   
   cum += __dt;
   if (cum < settings.cutoff) {
     return;
   }
+
   let _dt = cum;
   cum = 0;
 
+  /*if (settings.missDetection) {
+    if (preventDoubling) {
+      preventDoubling = false;
+    }
+    else if (lastDt && _dt / lastDt > 1.5) {
+      _dt = lastDt;
+      console.log(123);
+      preventDoubling = true;
+    }
+  }*/
+
+  lastDt = _dt;
   dts.push(_dt);
   
 
@@ -325,7 +350,8 @@ function addDt(__dt) {
   kmhGauge.innerText = "kmh: " + Math.round(rpm / ratio * 60 * (Math.PI * settings.wheelR * 2) / 1000);
 
   if (dyno) {
-    shownDts.push(dt);
+    shownDts[shownDtsIndex] = dt;
+
     if (lastrpm == 0 && rpm != 0) {
       nextRun();
     } 
@@ -344,14 +370,14 @@ function addDt(__dt) {
     highestrpm = Math.max(rpm, highestrpm);
   }
 
-  render();
+  if (shouldRender) render();
 }
 
 function render() {
   if (dtButton.checked) {
-    let lineInfo = [{c: new Vec(255, 0, 0), name: "DT (s)"}];
+    let lineInfo = [{c: new Vec(100, 0, 0), name: "Uncorrected (s)"}, {c: new Vec(255, 255, 0), name: "Corrected (s)"}];
     
-    renderGraph(curveCtx, nameInput.value, [shownDts], lineInfo, {name: "i"}, {name: "dt"});
+    renderGraph(curveCtx, nameInput.value, [saveDts, shownDts], lineInfo, {name: "i"}, {name: "dt"});
   } else {
     let lineInfo = [{c: new Vec(255, 255, 0), name: "Torque (nm)"}, {c: new Vec(255, 0, 0), name: "Power (hp)"}];
 
@@ -379,7 +405,7 @@ let currentDt = 200000;
 if (false) {
   setInterval(() => {
     addDt(currentDt / 1000000 + Math.random() * 0.0001);
-    addDt(200 / 1000000);
+    //addDt(200 / 1000000);
     if (growing) currentDt *= 0.995;
     if (currentDt < 50000) currentDt = 2000000;
   }, 16);
