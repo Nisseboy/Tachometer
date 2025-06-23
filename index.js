@@ -429,7 +429,7 @@ if (false) {
 
     let s = serialData.split(",");
     for (let i = 0; i < s.length - 1; i++) {      
-      addDt(parseFloat(s[i]) / 1000000);
+      addDt(Math.min(parseFloat(s[i]) / 1000000, 2));
     }
     serialData = s[s.length - 1];
 
@@ -437,8 +437,9 @@ if (false) {
   }
 
   setInterval(() => {
-    if (performance.now() - lastPulse > 400) {
+    if (performance.now() - lastPulse > 2000) {
       addDt(2);
+      lastPulse = performance.now();
     }
   }, 16);
 }
