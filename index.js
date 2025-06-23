@@ -313,6 +313,8 @@ let cum = 0;
 let preventDoubling = false;
 
 function addDt(__dt) {
+  elapsedTime += _dt;
+  
   if (dyno) {
     saveDts.push(__dt);
     shownDts[0].push(new Vec(elapsedTime, __dt));
@@ -339,7 +341,6 @@ function addDt(__dt) {
 
   lastDt = _dt;
   dts.push(_dt);
-  elapsedTime += _dt;
   
   
 
@@ -388,7 +389,7 @@ function render() {
   else if (dtButton.value == 1) {
     let lineInfo = [{c: new Vec(100, 0, 0), name: "Uncorrected (s)"}, {c: new Vec(255, 255, 0), name: "Corrected (s)"}];
     
-    renderGraph(curveCtx, nameInput.value + " - DTs", shownDts, lineInfo, {name: "i"}, {name: "dt"});
+    renderGraph(curveCtx, nameInput.value + " - DTs", shownDts, lineInfo, {name: "Time (s)"}, {name: "dt"});
   } else if (dtButton.value == 0) {
     let lineInfo = [{c: new Vec(255, 255, 0), name: "Torque (nm)"}, {c: new Vec(255, 0, 0), name: "Power (hp)"}];
 
