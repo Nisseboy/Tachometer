@@ -15,6 +15,7 @@ let gearSelector = document.getElementById("gear-selector");
 let rpmGauge = document.getElementById("rpm");
 let kmhGauge = document.getElementById("kmh");
 let nameInput = document.getElementById("name-input");
+let dtButton = document.getElementById("dt-button");
 
 let runSelector = document.getElementById("runs");
 
@@ -72,6 +73,7 @@ assignInput("gears", gearsTemplates["AM6"], "gears", updateValues);
 assignInput("wheelR", 0.3, "wheelR-input");
 assignInput("pulses", 5, "pulse-input");
 assignInput("average", 1, "average");
+assignInput("cutoff", 0, "cutoff");
 
 let finalDrive;
 let gears;
@@ -141,8 +143,8 @@ function renderGraph(ctx, name, data, lines, hor, ver, _max) {
     }
   }
 
-  if (_max.x) max.x = _max.x;
-  if (_max.y) max.y = _max.y;
+  if (_max?.x) max.x = _max.x;
+  if (_max?.y) max.y = _max.y;
 
   let scale = size._divV(max);
 
@@ -294,10 +296,20 @@ document.getElementById("load-button").onclick = () => {
 let rpm = undefined;
 let lastrpm = undefined;
 let dts = [];
+let cum = 0;
 
 function addDt(_dt) {
   
   dts.push(_dt);
+
+  cum += _dt;
+  if (cum < settings.cutoff) {
+    return;
+  }
+  _dt = cum;
+  cum = 0;
+  
+
   while (dts.length > settings.average) dts.shift();
   let dt = dts.reduce((a, b) => a + b) / dts.length;
 
@@ -333,21 +345,27 @@ function addDt(_dt) {
 }
 
 function render() {
-  let lineInfo = [{c: new Vec(255, 255, 0), name: "Torque (nm)"}, {c: new Vec(255, 0, 0), name: "Power (hp)"}];
+  if (dtButton.checked) {
+    let lineInfo = [{c: new Vec(255, 0, 0), name: "DT (s)"}];
+    
+    renderGraph(curveCtx, nameInput.value, [saveDts], lineInfo, {name: "i"}, {name: "dt"});
+  } else {
+    let lineInfo = [{c: new Vec(255, 255, 0), name: "Torque (nm)"}, {c: new Vec(255, 0, 0), name: "Power (hp)"}];
 
-  let renderRuns = [];
-  renderRuns.push(runs[shownRun].tq);
-  renderRuns.push(runs[shownRun].hp);
-  
-  let max = new Vec(0, 0);
-  for (let r of runs) {
-    for (let p of [...r.tq, ...r.hp]) {
-      max.x = Math.max(max.x, p.x);
-      max.y = Math.max(max.y, p.y);
+    let renderRuns = [];
+    renderRuns.push(runs[shownRun].tq);
+    renderRuns.push(runs[shownRun].hp);
+    
+    let max = new Vec(0, 0);
+    for (let r of runs) {
+      for (let p of [...r.tq, ...r.hp]) {
+        max.x = Math.max(max.x, p.x);
+        max.y = Math.max(max.y, p.y);
+      }
     }
-  }
 
-  renderGraph(curveCtx, nameInput.value + " - " + (shownRun + 1), renderRuns, lineInfo, {name: "rpm"}, {name: "power/torque"}, max);
+    renderGraph(curveCtx, nameInput.value + " - " + (shownRun + 1), renderRuns, lineInfo, {name: "rpm"}, {name: "power/torque"}, max);
+  }  
 }
 nameInput.onchange = () => {render()};
 
@@ -355,9 +373,10 @@ nameInput.onchange = () => {render()};
 let lastPulse = 0;
 let growing = false;
 let currentDt = 200000;
-if (false) {
+if (true) {
   setInterval(() => {
     addDt(currentDt / 1000000 + Math.random() * 0.0001);
+    addDt(200 / 1000000);
     if (growing) currentDt *= 0.995;
     if (currentDt < 50000) currentDt = 2000000;
   }, 16);
