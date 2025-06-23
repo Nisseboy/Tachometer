@@ -257,6 +257,7 @@ document.getElementById("dyno-button").onchange = e => {
 };
 function startDyno() {
   saveDts = [];
+  shownDts = [];
   dyno = true;
   document.getElementById("dyno-button").checked = true;
   runSelector.replaceChildren();
@@ -296,18 +297,20 @@ document.getElementById("load-button").onclick = () => {
 let rpm = undefined;
 let lastrpm = undefined;
 let dts = [];
+let shownDts = [];
 let cum = 0;
 
-function addDt(_dt) {
+function addDt(__dt) {
+  if (dyno) saveDts.push(__dt);
   
-  dts.push(_dt);
-
-  cum += _dt;
+  cum += __dt;
   if (cum < settings.cutoff) {
     return;
   }
-  _dt = cum;
+  let _dt = cum;
   cum = 0;
+
+  dts.push(_dt);
   
 
   while (dts.length > settings.average) dts.shift();
@@ -322,7 +325,7 @@ function addDt(_dt) {
   kmhGauge.innerText = "kmh: " + Math.round(rpm / ratio * 60 * (Math.PI * settings.wheelR * 2) / 1000);
 
   if (dyno) {
-    saveDts.push(_dt);
+    shownDts.push(dt);
     if (lastrpm == 0 && rpm != 0) {
       nextRun();
     } 
@@ -348,7 +351,7 @@ function render() {
   if (dtButton.checked) {
     let lineInfo = [{c: new Vec(255, 0, 0), name: "DT (s)"}];
     
-    renderGraph(curveCtx, nameInput.value, [saveDts], lineInfo, {name: "i"}, {name: "dt"});
+    renderGraph(curveCtx, nameInput.value, [shownDts], lineInfo, {name: "i"}, {name: "dt"});
   } else {
     let lineInfo = [{c: new Vec(255, 255, 0), name: "Torque (nm)"}, {c: new Vec(255, 0, 0), name: "Power (hp)"}];
 
@@ -373,7 +376,7 @@ nameInput.onchange = () => {render()};
 let lastPulse = 0;
 let growing = false;
 let currentDt = 200000;
-if (true) {
+if (false) {
   setInterval(() => {
     addDt(currentDt / 1000000 + Math.random() * 0.0001);
     addDt(200 / 1000000);
