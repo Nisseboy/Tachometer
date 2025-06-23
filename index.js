@@ -260,7 +260,7 @@ document.getElementById("dyno-button").onchange = e => {
 };
 function startDyno() {
   saveDts = [];
-  shownDts = [];
+  shownDts = [[], []];
   rpms = [];
   shownDtsIndex = -1;
   dyno = true;
@@ -307,7 +307,7 @@ let elapsedTime = 0;
 let lastrpm = undefined;
 let lastDt = 0;
 let dts = [];
-let shownDts = [];
+let shownDts = [[], []];
 let shownDtsIndex = -1;
 let cum = 0;
 let preventDoubling = false;
@@ -315,7 +315,7 @@ let preventDoubling = false;
 function addDt(__dt) {
   if (dyno) {
     saveDts.push(__dt);
-    shownDtsIndex++;
+    shownDts[0].push(new Vec(elapsedTime, __dt));
   }
   
   cum += __dt;
@@ -341,6 +341,7 @@ function addDt(__dt) {
   dts.push(_dt);
   elapsedTime += _dt;
   
+  
 
   while (dts.length > settings.average) dts.shift();
   let dt = dts.reduce((a, b) => a + b) / dts.length;
@@ -354,7 +355,7 @@ function addDt(__dt) {
   kmhGauge.innerText = "kmh: " + Math.round(rpm / ratio * 60 * (Math.PI * settings.wheelR * 2) / 1000);
 
   if (dyno) {
-    shownDts[shownDtsIndex] = dt;
+    shownDts[1].push(new Vec(elapsedTime, dt));
     rpms.push(new Vec(elapsedTime, rpm));
 
     if (lastrpm == 0 && rpm != 0) {
@@ -387,7 +388,7 @@ function render() {
   else if (dtButton.value == 1) {
     let lineInfo = [{c: new Vec(100, 0, 0), name: "Uncorrected (s)"}, {c: new Vec(255, 255, 0), name: "Corrected (s)"}];
     
-    renderGraph(curveCtx, nameInput.value + " - DTs", [saveDts, shownDts], lineInfo, {name: "i"}, {name: "dt"});
+    renderGraph(curveCtx, nameInput.value + " - DTs", shownDts, lineInfo, {name: "i"}, {name: "dt"});
   } else if (dtButton.value == 0) {
     let lineInfo = [{c: new Vec(255, 255, 0), name: "Torque (nm)"}, {c: new Vec(255, 0, 0), name: "Power (hp)"}];
 
