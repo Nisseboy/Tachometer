@@ -243,6 +243,7 @@ let highestrpm = 0;
 let saveDts = [];
 
 let run = new Run();
+let rawRun = new Run();
 let runs = [run];
 let shownRun = 0;
 
@@ -263,11 +264,14 @@ function startDyno() {
   shownDts = [[], []];
   rpms = [];
   shownDtsIndex = -1;
+  lastDt = 0;
+  cum = 0;
   dyno = true;
   document.getElementById("dyno-button").checked = true;
   runSelector.replaceChildren();
   elapsedTime = 0;
   runs = [];
+  rawRun = new Run();
   nextRun();
 }
 function stopDyno() {
@@ -298,6 +302,16 @@ document.getElementById("load-button").onclick = () => {
   for (let dt of data) addDt(dt);
   stopDyno();
   shouldRender = true;
+
+  render();
+}
+
+document.getElementById("export-button").onclick = () => {
+  navigator.clipboard.writeText(localStorage.getItem("tachometer-data"));
+}
+document.getElementById("import-button").onclick = async () => {
+  const text = await navigator.clipboard.readText();
+  localStorage.setItem("tachometer-data", text);
 }
 
 
@@ -372,6 +386,9 @@ function addDt(__dt) {
     if (rpm > highestrpm && power > 0) {
       run.hp.push(new Vec(rpm, power));
       run.tq.push(new Vec(rpm, torque));
+
+      rawRun.hp.push(new Vec(elapsedTime, power));
+      rawRun.tq.push(new Vec(elapsedTime, torque));
     }
 
     highestrpm = Math.max(rpm, highestrpm);
@@ -380,7 +397,13 @@ function addDt(__dt) {
   if (shouldRender) render();
 }
 
+dtButton.oninput = render;
 function render() {
+  if (dtButton.value == 3) {
+    let lineInfo = [{c: new Vec(255, 255, 0), name: "Torque (nm)"}, {c: new Vec(255, 0, 0), name: "Power (hp)"}];
+    
+    renderGraph(curveCtx, nameInput.value + " - HP+TQ", [rawRun.tq, rawRun.hp], lineInfo, {name: "Time (s)"}, {name: "power/torque"});
+  }
   if (dtButton.value == 2) {
     let lineInfo = [{c: new Vec(255, 0, 0), name: "RPM"}];
     
@@ -392,10 +415,6 @@ function render() {
     renderGraph(curveCtx, nameInput.value + " - DTs", shownDts, lineInfo, {name: "Time (s)"}, {name: "dt"});
   } else if (dtButton.value == 0) {
     let lineInfo = [{c: new Vec(255, 255, 0), name: "Torque (nm)"}, {c: new Vec(255, 0, 0), name: "Power (hp)"}];
-
-    let renderRuns = [];
-    renderRuns.push(runs[shownRun].tq);
-    renderRuns.push(runs[shownRun].hp);
     
     let max = new Vec(0, 0);
     for (let r of runs) {
@@ -405,7 +424,7 @@ function render() {
       }
     }
 
-    renderGraph(curveCtx, nameInput.value + " - " + (shownRun + 1), renderRuns, lineInfo, {name: "rpm"}, {name: "power/torque"}, max);
+    renderGraph(curveCtx, nameInput.value + " - " + (shownRun + 1), [runs[shownRun].tq, runs[shownRun].hp], lineInfo, {name: "rpm"}, {name: "power/torque"}, max);
   }  
 }
 nameInput.onchange = () => {render()};
