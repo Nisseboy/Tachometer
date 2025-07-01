@@ -4,8 +4,9 @@
 
 let rpmGauges = document.getElementsByClassName("rpm");
 let kmhGauges = document.getElementsByClassName("kmh");
+let gearSelectors = document.getElementsByClassName("gear-selector");
 
-let pages = [document.getElementById("setup"), document.getElementById("dyno")]
+let pages = [...document.getElementsByClassName("page")];
 let pagesButtons = document.getElementById("pages-buttons");
 
 let runSelector = document.getElementById("runs");
@@ -79,7 +80,7 @@ let gear = 1;
 function changeGear(delta) {
   gear += delta;
   gear = Math.max(Math.min(gear, gears.length), 1);
-  gearSelector.children[1].innerText = gear;
+  for (let g of gearSelectors) g.children[1].innerText = gear;
 }
 
 
@@ -89,7 +90,7 @@ function setPage(i) {
   page = pages[i];
   page.classList.add("shown");
 }
-for (let i in pages) {
+for (let i in pages) {  
   let p = pages[i];
   let elem = document.createElement("button");
   elem.innerText = p.id;
@@ -115,6 +116,12 @@ function updateGauges() {
   for (let g of kmhGauges) {
     g.innerText = "kmh: " + Math.round(speed);
   }
+
+  speedometer.value = Math.round(speed);
+  tachometer.value = Math.round(rpm);
+  speedometer.render();
+  tachometer.render();
+
 }
 
 function strokeEllipse(ctx, pos, size) {

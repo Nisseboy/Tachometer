@@ -6,7 +6,6 @@ class Run {
 }
 
 let dtButton = document.getElementById("dt-button");
-let gearSelector = document.getElementById("gear-selector");
 let nameInput = document.getElementById("name-input");
 
 

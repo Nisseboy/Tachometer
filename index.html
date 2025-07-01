@@ -74,10 +74,22 @@
 
 
 
+  <div class="page" id="tachometer">
+    <div class="rpm">rpm: 0</div>
+    <div class="kmh">kmh: 0</div>
+    <div class="gear-selector" style="display: flex; gap: 0.2rem;">
+      <button onclick="changeGear(-1)"><</button>
+      <div>1</div>
+      <button onclick="changeGear(1)">></button>
+    </div>
+  </div>
+
+
+
   <div class="page" id="dyno">
     <div class="rpm">rpm: 0</div>
     <div class="kmh">kmh: 0</div>
-    <div id="gear-selector" style="display: flex; gap: 0.2rem;">
+    <div class="gear-selector" style="display: flex; gap: 0.2rem;">
       <button onclick="changeGear(-1)"><</button>
       <div>1</div>
       <button onclick="changeGear(1)">></button>
@@ -107,6 +119,7 @@
   <script src="Vec.js"></script>
   <script src="serial.js"></script>
   <script src="serial2.js"></script>
+  <script src="gauges.js"></script>
   <script src="dyno.js"></script>
   <script src="input.js"></script>
   <script src="speed.js"></script>
