@@ -168,13 +168,13 @@ function addDt(__dt) {
   rpm = 1 / fullRot * 60 * (settings.engineInput?1:ratio);
   speed = rpm / ratio * 60 * (Math.PI * settings.wheelR * 2) / 1000;
   if (settings.gpsSpeed) speed = gpsSpeed;
-  saveSpeeds.push(new Vec(elapsedTime, speed));
 
   updateGauges();
 
   if (dyno) {
     shownDts[1].push(new Vec(elapsedTime, dt));
     rpms.push(new Vec(elapsedTime, rpm));
+    saveSpeeds.push(new Vec(elapsedTime, speed));
 
     if (rpm > lastrpm && rpm < highestrpm) {
       nextRun();
