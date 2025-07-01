@@ -11,41 +11,65 @@
 
 
   <div class="page shown" id="setup">
-    <button onclick="ser.connect({ baudRate: 31250 });">Connect Serial</button>
-
-    <label for="gears">Gears</label>
-    <textarea name="" id="gears"></textarea>
-    <div id="gear-templates"></div>
-
-    <div>
-      <label for="wheelR-input">Wheel Radius</label>
-      <input type="number" name="" id="wheelR-input">
+    <div id="inputs" class="box">
+      Choose input method:
+      <button onclick="connectDummy()">Connect Dummy</button>
+      <button onclick="connectSerial()">Connect Serial</button>
+      <button onclick="connectAudio()">Connect Audio</button>
     </div>
-
-    <div>
-      <label for="pulse-input">Pulses per Rotation</label>
-      <input type="number" name="" id="pulse-input">
-    </div>
-
-    <div>
-      <label for="average">Smoothing Duration</label>
-      <input type="number" name="" id="average" min="1" max="20">
-    </div>
-
-    <div>
-      <label for="cutoff">Min Cutoff</label>
-      <input type="number" name="" id="cutoff" min="0" max="2">
-    </div>
-
     
-    <div>
-      <label for="name-input">Dyno Image Name</label>
-      <input type="text" name="" id="name-input" value="dyno">
+    <div class="box">
+
+      <div>
+        <label for="pulse-input">Pulses per Rotation</label>
+        <input type="number" name="" id="pulse-input">
+      </div>
+
+      <div>
+        <label for="engine-input">Measuring Engine? Otherwise wheel</label>
+        <input type="checkbox" name="" id="engine-input">
+      </div>
+
+      <div>
+        <label for="cutoff">Min Cutoff (s)</label>
+        <input type="number" name="" id="cutoff" min="0" max="2">
+      </div>
+
+      <div>
+        <label for="average">Smoothing Duration (pulses)</label>
+        <input type="number" name="" id="average" min="1" max="20">
+      </div>
+
+      <div>
+        <label for="inertia">Inertia (kg*m2)</label>
+        <input type="number" name="" id="inertia">
+      </div>
     </div>
+    
+    <div class="box">
+      <label for="gears">Gears</label>
+      <textarea name="" id="gears"></textarea>
+      <div id="gear-templates"></div>
+
+      <div>
+        <label for="wheelR-input">Wheel Radius (m)</label>
+        <input type="number" name="" id="wheelR-input">
+      </div>
+    </div>
+    
+    <div class="box">
+      <div>
+        <label for="name-input">Dyno Name</label>
+        <input type="text" name="" id="name-input" value="dyno">
+      </div>
+    </div>
+
   </div>
 
 
-  <div class="page" id="tacho">
+
+
+  <div class="page" id="dyno">
     <div id="rpm">rpm: 0</div>
     <div id="kmh">kmh: 0</div>
     <div id="gear-selector" style="display: flex; gap: 0.2rem;">
@@ -78,6 +102,8 @@
   <script src="Vec.js"></script>
   <script src="serial.js"></script>
   <script src="serial2.js"></script>
+  <script src="dyno.js"></script>
+  <script src="input.js"></script>
   <script src="index.js"></script>
 </body>
 </html>
