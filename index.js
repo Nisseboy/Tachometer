@@ -2,6 +2,8 @@
 
 
 
+let rpmGauges = document.getElementsByClassName("rpm");
+let kmhGauges = document.getElementsByClassName("kmh");
 
 let pages = [document.getElementById("setup"), document.getElementById("dyno")]
 let pagesButtons = document.getElementById("pages-buttons");
@@ -68,6 +70,7 @@ assignInput("average", 1, "average", true);
 assignInput("inertia", 1, "inertia", true);
 assignInput("cutoff", 0, "cutoff", true);
 assignInput("engineInput", false, "engine-input", true);
+assignInput("gpsSpeed", false, "gps-input", true, updateValues);
 //assignInput("missDetection", false, "missDetection", false);
 
 let finalDrive;
@@ -96,10 +99,22 @@ for (let i in pages) {
 
 
 updateValues();
-function updateValues() {
+function updateValues() {  
   let s = settings.gears.split("\n");
   finalDrive = eval(s[0]);
   gears = s[1].split(",").map(e=>eval(e));
+
+  if (settings.gpsSpeed) startSpeedo();
+  else stopSpeedo();
+}
+
+function updateGauges() {
+  for (let g of rpmGauges) {
+    g.innerText = "rpm: " + Math.round(rpm);
+  }
+  for (let g of kmhGauges) {
+    g.innerText = "kmh: " + Math.round(speed);
+  }
 }
 
 function strokeEllipse(ctx, pos, size) {

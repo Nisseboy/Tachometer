@@ -7,8 +7,6 @@ class Run {
 
 let dtButton = document.getElementById("dt-button");
 let gearSelector = document.getElementById("gear-selector");
-let rpmGauge = document.getElementById("rpm");
-let kmhGauge = document.getElementById("kmh");
 let nameInput = document.getElementById("name-input");
 
 
@@ -16,6 +14,7 @@ let nameInput = document.getElementById("name-input");
 let dyno = false;
 let highestrpm = 0;
 let saveDts = [];
+let saveSpeeds = [];
 
 let run = new Run();
 let rawRun = new Run();
@@ -34,15 +33,17 @@ document.getElementById("dyno-button").onchange = e => {
   }
 };
 document.getElementById("save-button").onclick = () => {
-  localStorage.setItem("tachometer-data", JSON.stringify(saveDts));
+  localStorage.setItem("tachometer-data", JSON.stringify([saveDts, saveSpeeds]));
 }
 document.getElementById("load-button").onclick = () => {
   let data = JSON.parse(localStorage.getItem("tachometer-data"));
   if (!data) return;
 
-  saveDts = data;
+  saveDts = data[0];
 
   reSimulate();
+  stopDyno();
+  saveSpeeds = data[1].map(e=>new Vec(e.x,e.y));
 }
 
 document.getElementById("export-button").onclick = () => {
@@ -66,6 +67,7 @@ function toggleDyno(force) {
 }
 function startDyno() {
   saveDts = [];
+  saveSpeeds = [];
   shownDts = [[], []];
   rpms = [];
   shownDtsIndex = -1;
@@ -112,6 +114,7 @@ function nextRun() {
 
 
 let rpm = undefined;
+let speed = undefined;
 let rpms = [];
 let elapsedTime = 0;
 let lastrpm = undefined;
@@ -161,10 +164,13 @@ function addDt(__dt) {
   let fullRot = dt * settings.pulses;
   let ratio = finalDrive * gears[gear - 1];
   lastrpm = rpm;
-  rpm = 1 / fullRot * 60 * (settings.engineInput?1:ratio);
   
-  rpmGauge.innerText = "rpm: " + Math.round(rpm);
-  kmhGauge.innerText = "kmh: " + Math.round(rpm / ratio * 60 * (Math.PI * settings.wheelR * 2) / 1000);
+  rpm = 1 / fullRot * 60 * (settings.engineInput?1:ratio);
+  speed = rpm / ratio * 60 * (Math.PI * settings.wheelR * 2) / 1000;
+  if (settings.gpsSpeed) speed = gpsSpeed;
+  saveSpeeds.push(new Vec(elapsedTime, speed));
+
+  updateGauges();
 
   if (dyno) {
     shownDts[1].push(new Vec(elapsedTime, dt));
@@ -200,10 +206,15 @@ function addDt(__dt) {
 
 
 function render() {
-  if (dtButton.value == 3) {
+  if (dtButton.value == 4) {
     let lineInfo = [{c: new Vec(255, 255, 0), name: "Torque (nm)"}, {c: new Vec(255, 0, 0), name: "Power (hp)"}];
     
     renderGraph(curveCtx, nameInput.value + " - HP+TQ", [rawRun.tq, rawRun.hp], lineInfo, {name: "Time (s)"}, {name: "power/torque"});
+  }
+  if (dtButton.value == 3) {
+    let lineInfo = [{c: new Vec(255, 0, 0), name: "kmh"}];
+    
+    renderGraph(curveCtx, nameInput.value + " - kmh", [saveSpeeds], lineInfo, {name: "Time (s)"}, {name: "Speed (kmh)"});
   }
   if (dtButton.value == 2) {
     let lineInfo = [{c: new Vec(255, 0, 0), name: "RPM"}];
