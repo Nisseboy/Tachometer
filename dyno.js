@@ -34,7 +34,7 @@ document.getElementById("dyno-button").onchange = e => {
   }
 };
 document.getElementById("save-button").onclick = () => {
-  localStorage.setItem("tachometer-data", JSON.stringify([saveDts, saveSpeeds, saveGear]));
+  localStorage.setItem("tachometer-data", JSON.stringify([saveDts, saveSpeeds[1], saveGear]));
 }
 document.getElementById("load-button").onclick = () => {
   let data = JSON.parse(localStorage.getItem("tachometer-data"));
@@ -45,7 +45,7 @@ document.getElementById("load-button").onclick = () => {
 
   reSimulate();
   stopDyno();
-  saveSpeeds = [data[1][0].map(e=>new Vec(e.x,e.y)), data[1][1].map(e=>new Vec(e.x,e.y))];
+  saveSpeeds[1] = data[1].map(e=>new Vec(e.x,e.y));
 }
 
 document.getElementById("export-button").onclick = () => {

@@ -1,5 +1,5 @@
 
-
+a = true;
 
 
 let rpmGauges = document.getElementsByClassName("rpm");
@@ -83,6 +83,9 @@ assignInput("inertia", 1, "inertia", true);
 assignInput("cutoff", 0, "cutoff", true);
 assignInput("engineInput", false, "engine-input", true);
 assignInput("gpsSpeed", false, "gps-input", true, updateValues);
+
+assignInput("maxSpeed", 120, "max-speed", false, updateValues);
+assignInput("maxRPM", 10000, "max-rpm", false, updateValues);
 //assignInput("missDetection", false, "missDetection", false);
 
 let finalDrive;
@@ -122,6 +125,10 @@ function updateValues() {
   for (let g of gpsGauges) {
     g.style.display = settings.gpsSpeed?"block":"none";
   }
+
+  speedometer.max = settings.maxSpeed;
+  tachometer.max = settings.maxRPM;
+  updateGauges();
 }
 
 function updateGauges() {
@@ -135,13 +142,21 @@ function updateGauges() {
     g.innerText = "gps: " + Math.round(gpsSpeed);
   }
 
-  speedometer.value = Math.round(speed);
-  tachometer.value = Math.round(rpm);
+  speedometer.value = speed;
+  tachometer.value = rpm;
   speedometer.render();
   tachometer.render();
 
 }
 
+function ellipse(ctx, pos, size) {
+  ctx.beginPath();    
+  ctx.ellipse(pos.x, pos.y, size, size, 0, 0, Math.PI * 2);
+}
+function rect(ctx, pos, size) {
+  ctx.beginPath();    
+  ctx.rect(pos.x, pos.y, size.x, size.y);
+}
 function strokeEllipse(ctx, pos, size) {
   ctx.beginPath();    
   ctx.ellipse(pos.x, pos.y, size, size, 0, 0, Math.PI * 2);

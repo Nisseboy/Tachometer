@@ -38,3 +38,9 @@ canvas {
 
   margin-bottom: 0.5rem;
 }
+
+.gauge {
+  height: 40vh;
+  width: 40vh;
+  margin-bottom: 0.5rem;
+}

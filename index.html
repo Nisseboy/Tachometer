@@ -47,13 +47,25 @@
       <div id="gear-templates"></div>
 
       <div>
-        <label for="wheelR-input">Wheel Radius (m)</label>
-        <input type="number" name="" id="wheelR-input">
+        <label for="wheelR-input1">Wheel Radius (m)</label>
+        <input type="number" name="" class="wheelR-input" id="wheelR-input1">
       </div>
 
       <div>
         <label for="gps-input">Measure GPS Speed</label>
         <input type="checkbox" name="" id="gps-input">
+      </div>
+    </div>
+    
+    <div class="box">
+      Gauges
+      <div>
+        <label for="max-speed">Max Speed (kmh)</label>
+        <input type="number" name="" id="max-speed">
+      </div>
+      <div>
+        <label for="max-rpm">Max RPM</label>
+        <input type="number" name="" id="max-rpm">
       </div>
     </div>
 
@@ -63,9 +75,6 @@
 
 
   <div class="page" id="tachometer">
-    <div class="rpm">rpm: 0</div>
-    <div class="kmh">kmh: 0</div>
-    <div class="gps">gps: 0</div>
     <div class="gear-selector" style="display: flex; gap: 0.2rem;">
       <button onclick="changeGear(-1)"><</button>
       <div>1</div>
@@ -131,6 +140,11 @@
         <label for="inertia">Inertia (kg*m2)</label>
         <input type="number" name="" id="inertia">
       </div>
+
+      <div>
+        <label for="wheelR-input2">Wheel Radius (m)</label>
+        <input type="number" name="" class="wheelR-input" id="wheelR-input2">
+      </div>
     </div>
 
 
@@ -145,10 +159,10 @@
   <script src="Vec.js"></script>
   <script src="serial.js"></script>
   <script src="serial2.js"></script>
-  <script src="gauges.js"></script>
   <script src="dyno.js"></script>
   <script src="input.js"></script>
   <script src="speed.js"></script>
   <script src="index.js"></script>
+  <script src="gauges.js"></script>
 </body>
 </html>
