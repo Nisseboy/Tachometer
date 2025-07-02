@@ -34,26 +34,33 @@ document.getElementById("dyno-button").onchange = e => {
   }
 };
 document.getElementById("save-button").onclick = () => {
-  localStorage.setItem("tachometer-data", JSON.stringify([saveDts, saveSpeeds[1], saveGear]));
+  localStorage.setItem("tachometer-data", exportRawData());
 }
 document.getElementById("load-button").onclick = () => {
   let data = JSON.parse(localStorage.getItem("tachometer-data"));
   if (!data) return;
 
+  importRawData(data);
+}
+
+document.getElementById("export-button").onclick = () => {
+  navigator.clipboard.writeText(exportRawData());
+}
+document.getElementById("import-button").onclick = async () => {
+  const text = await navigator.clipboard.readText();
+  importRawData(JSON.parse(text));
+}
+
+function exportRawData() {
+  return JSON.stringify([saveDts, saveSpeeds[1], saveGear]);
+}
+function importRawData(data) {
   saveDts = data[0];
   saveGear = data[2];
 
   reSimulate();
   stopDyno();
   saveSpeeds[1] = data[1].map(e=>new Vec(e.x,e.y));
-}
-
-document.getElementById("export-button").onclick = () => {
-  navigator.clipboard.writeText(localStorage.getItem("tachometer-data"));
-}
-document.getElementById("import-button").onclick = async () => {
-  const text = await navigator.clipboard.readText();
-  localStorage.setItem("tachometer-data", text);
 }
 
 
