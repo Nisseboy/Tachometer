@@ -13,6 +13,7 @@ let nameInput = document.getElementById("name-input");
 let dyno = false;
 let highestrpm = 0;
 let saveDts = [];
+let saveGear = [];
 let saveSpeeds = [[], []];
 
 let run = new Run();
@@ -21,6 +22,7 @@ let runs = [run];
 let shownRun = 0;
 
 let shouldRender = true;
+let forceGearRatio = 0;
 
 document.getElementById("dyno-button").onchange = e => {
   growing = true;
@@ -32,13 +34,14 @@ document.getElementById("dyno-button").onchange = e => {
   }
 };
 document.getElementById("save-button").onclick = () => {
-  localStorage.setItem("tachometer-data", JSON.stringify([saveDts, saveSpeeds]));
+  localStorage.setItem("tachometer-data", JSON.stringify([saveDts, saveSpeeds, saveGear]));
 }
 document.getElementById("load-button").onclick = () => {
   let data = JSON.parse(localStorage.getItem("tachometer-data"));
   if (!data) return;
 
   saveDts = data[0];
+  saveGear = data[2];
 
   reSimulate();
   stopDyno();
@@ -66,6 +69,7 @@ function toggleDyno(force) {
 }
 function startDyno() {
   saveDts = [];
+  saveGear = [];
   saveSpeeds = [[], []];
   shownDts = [[], []];
   rpms = [];
@@ -88,10 +92,16 @@ function reSimulate() {
   let data = JSON.parse(JSON.stringify(saveDts));
 
   let d = dyno;
+  let _saveGear = JSON.parse(JSON.stringify(saveGear));
 
   startDyno();
   shouldRender = false;
-  for (let dt of data) addDt(dt);
+  for (let i in data) {
+    forceGearRatio = _saveGear[i];
+    addDt(data[i]);
+    
+  }
+  forceGearRatio = 0;
   shouldRender = true;
   toggleDyno(d);
   render();
@@ -126,10 +136,14 @@ let preventDoubling = false;
 
 
 function addDt(__dt) {
+  let ratio = finalDrive * gears[gear - 1];
+  if (forceGearRatio) ratio = forceGearRatio;
+
   elapsedTime += __dt;
 
   if (dyno) {
     saveDts.push(__dt);
+    saveGear.push(ratio);
     shownDts[0].push(new Vec(elapsedTime, __dt));
   }
   
@@ -161,7 +175,6 @@ function addDt(__dt) {
   let dt = dts.reduce((a, b) => a + b) / dts.length;
 
   let fullRot = dt * settings.pulses;
-  let ratio = finalDrive * gears[gear - 1];
   lastrpm = rpm;
   
   rpm = 1 / fullRot * 60 * (settings.engineInput?1:ratio);
@@ -182,7 +195,7 @@ function addDt(__dt) {
     let diff = rpm - lastrpm;
     let deltaAV = diff * 0.10472;
     let AA = deltaAV / dt;
-    let torque = AA * (settings.inertia / (settings.engineInput?1:ratio));
+    let torque = AA * (settings.inertia / (settings.engineInput?(ratio):ratio));
     let power = torque * rpm / 7127;
 
     if (rpm > highestrpm && power > 0) {
