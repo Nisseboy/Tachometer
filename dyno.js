@@ -13,7 +13,7 @@ let nameInput = document.getElementById("name-input");
 let dyno = false;
 let highestrpm = 0;
 let saveDts = [];
-let saveSpeeds = [];
+let saveSpeeds = [[], []];
 
 let run = new Run();
 let rawRun = new Run();
@@ -42,7 +42,7 @@ document.getElementById("load-button").onclick = () => {
 
   reSimulate();
   stopDyno();
-  saveSpeeds = data[1].map(e=>new Vec(e.x,e.y));
+  saveSpeeds = [data[1][0].map(e=>new Vec(e.x,e.y)), data[1][1].map(e=>new Vec(e.x,e.y))];
 }
 
 document.getElementById("export-button").onclick = () => {
@@ -66,7 +66,7 @@ function toggleDyno(force) {
 }
 function startDyno() {
   saveDts = [];
-  saveSpeeds = [];
+  saveSpeeds = [[], []];
   shownDts = [[], []];
   rpms = [];
   shownDtsIndex = -1;
@@ -166,14 +166,14 @@ function addDt(__dt) {
   
   rpm = 1 / fullRot * 60 * (settings.engineInput?1:ratio);
   speed = rpm / ratio * 60 * (Math.PI * settings.wheelR * 2) / 1000;
-  if (settings.gpsSpeed) speed = gpsSpeed;
 
   updateGauges();
 
   if (dyno) {
     shownDts[1].push(new Vec(elapsedTime, dt));
     rpms.push(new Vec(elapsedTime, rpm));
-    saveSpeeds.push(new Vec(elapsedTime, speed));
+    saveSpeeds[0].push(new Vec(elapsedTime, speed));
+    saveSpeeds[1].push(new Vec(elapsedTime, gpsSpeed));
 
     if (rpm > lastrpm && rpm < highestrpm) {
       nextRun();
@@ -211,9 +211,9 @@ function render() {
     renderGraph(curveCtx, nameInput.value + " - HP+TQ", [rawRun.tq, rawRun.hp], lineInfo, {name: "Time (s)"}, {name: "power/torque"});
   }
   if (dtButton.value == 3) {
-    let lineInfo = [{c: new Vec(255, 0, 0), name: "kmh"}];
+    let lineInfo = [{c: new Vec(255, 0, 0), name: "Wheel (kmh)"}, {c: new Vec(0, 0, 255), name: "GPS (kmh)"}];
     
-    renderGraph(curveCtx, nameInput.value + " - kmh", [saveSpeeds], lineInfo, {name: "Time (s)"}, {name: "Speed (kmh)"});
+    renderGraph(curveCtx, nameInput.value + " - Speed", saveSpeeds, lineInfo, {name: "Time (s)"}, {name: "Speed (kmh)"});
   }
   if (dtButton.value == 2) {
     let lineInfo = [{c: new Vec(255, 0, 0), name: "RPM"}];
@@ -221,7 +221,7 @@ function render() {
     renderGraph(curveCtx, nameInput.value + " - RPM", [rpms], lineInfo, {name: "Time (s)"}, {name: "RPM"});
   }
   else if (dtButton.value == 1) {
-    let lineInfo = [{c: new Vec(100, 0, 0), name: "Uncorrected (s)"}, {c: new Vec(255, 255, 0), name: "Corrected (s)"}];
+    let lineInfo = [{c: new Vec(100, 0, 0), name: "Uncorrected (s)"}, {c: new Vec(0, 0, 255), name: "Corrected (s)"}];
     
     renderGraph(curveCtx, nameInput.value + " - DTs", shownDts, lineInfo, {name: "Time (s)"}, {name: "dt"});
   } else if (dtButton.value == 0) {

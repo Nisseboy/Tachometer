@@ -4,6 +4,7 @@
 
 let rpmGauges = document.getElementsByClassName("rpm");
 let kmhGauges = document.getElementsByClassName("kmh");
+let gpsGauges = document.getElementsByClassName("gps");
 let gearSelectors = document.getElementsByClassName("gear-selector");
 
 let pages = [...document.getElementsByClassName("page")];
@@ -107,6 +108,10 @@ function updateValues() {
 
   if (settings.gpsSpeed) startSpeedo();
   else stopSpeedo();
+
+  for (let g of gpsGauges) {
+    g.style.display = settings.gpsSpeed?"block":"none";
+  }
 }
 
 function updateGauges() {
@@ -115,6 +120,9 @@ function updateGauges() {
   }
   for (let g of kmhGauges) {
     g.innerText = "kmh: " + Math.round(speed);
+  }
+  for (let g of gpsGauges) {
+    g.innerText = "gps: " + Math.round(gpsSpeed);
   }
 
   speedometer.value = Math.round(speed);
