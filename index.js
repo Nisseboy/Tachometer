@@ -46,23 +46,33 @@ function assignInput(settingName, defaultValue, id, re, onchange = () => {}) {
   settings[settingName] = settings[settingName] || defaultValue;
 
   if (!id) return;
-  let input = document.getElementById(id);
+  let _input = document.getElementById(id);
+  let inputs = [_input];
+  if (_input == null) inputs = [...document.getElementsByClassName(id)];
   
-  if (input.type != "checkbox") input.value = settings[settingName];
-  else input.checked = settings[settingName];
-  input.addEventListener("change", (v) => {
-    let val;
-    if (v.target.type == "checkbox") val = v.target.checked;
-    else if (v.target.type == "textarea") val = v.target.value;
-    else val = parseFloat(v.target.value);
+  for (let input of inputs) {
+    if (input.type != "checkbox") input.value = settings[settingName];
+    else input.checked = settings[settingName];
+    input.addEventListener("change", (v) => {
+      let val;
+      if (v.target.type == "checkbox") val = v.target.checked;
+      else if (v.target.type == "textarea") val = v.target.value;
+      else val = parseFloat(v.target.value);
 
-    
-    settings[settingName] = val;
-    onchange(settings[settingName]);
-    saveSettings();
+      for (let i of inputs) {
+        if (i == input) continue;
 
-    if (re) reSimulate();
-  });
+        if (i.type != "checkbox") i.value = val;
+        else i.checked = val;
+      }
+      
+      settings[settingName] = val;
+      onchange(settings[settingName]);
+      saveSettings();
+
+      if (re) reSimulate();
+    });
+  }
 }
 
 assignInput("gears", gearsTemplates["AM6"], "gears", false, updateValues);

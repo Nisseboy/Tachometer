@@ -21,23 +21,23 @@
     <div class="box">
 
       <div>
-        <label for="pulse-input">Pulses per Rotation</label>
-        <input type="number" name="" id="pulse-input">
+        <label for="pulse-input1">Pulses per Rotation</label>
+        <input type="number" name="" class="pulse-input" id="pulse-input1">
       </div>
 
       <div>
-        <label for="cutoff">Min Cutoff (s)</label>
-        <input type="number" name="" id="cutoff" min="0" max="2">
+        <label for="cutoff1">Min Cutoff (s)</label>
+        <input type="number" name="" class="cutoff" id="cutoff1" min="0" max="2">
       </div>
 
       <div>
-        <label for="average">Smoothing Duration (pulses)</label>
-        <input type="number" name="" id="average" min="1" max="20">
+        <label for="average1">Smoothing Duration (pulses)</label>
+        <input type="number" name="" class="average" id="average1" min="1" max="20">
       </div>
 
       <div>
-        <label for="engine-input">Measuring Engine? Otherwise wheel</label>
-        <input type="checkbox" name="" id="engine-input">
+        <label for="engine-input1">Measuring Engine? Otherwise wheel</label>
+        <input type="checkbox" name="" class="engine-input" id="engine-input1">
       </div>
     </div>
     
@@ -52,20 +52,8 @@
       </div>
 
       <div>
-        <label for="gps-input">Use GPS for speed? Otherwise wheel</label>
+        <label for="gps-input">Measure GPS Speed</label>
         <input type="checkbox" name="" id="gps-input">
-      </div>
-
-      <div>
-        <label for="inertia">Inertia (kg*m2)</label>
-        <input type="number" name="" id="inertia">
-      </div>
-    </div>
-    
-    <div class="box">
-      <div>
-        <label for="name-input">Dyno Name</label>
-        <input type="text" name="" id="name-input" value="dyno">
       </div>
     </div>
 
@@ -109,6 +97,42 @@
     <canvas id="curve-canvas"></canvas>
     <div id="runs"></div>
     <a id="download" download="dyno.jpg" href="" onclick="downloadImage(this);">Save Image</a>
+    
+    
+    <div class="box">
+      <div>
+        <label for="name-input">Dyno Name</label>
+        <input type="text" name="" id="name-input" value="dyno">
+      </div>
+
+      <div>
+        <label for="pulse-input2">Pulses per Rotation</label>
+        <input type="number" name="" class="pulse-input" id="pulse-input2">
+      </div>
+
+      <div>
+        <label for="cutoff2">Min Cutoff (s)</label>
+        <input type="number" name="" class="cutoff" id="cutoff2" min="0" max="2">
+      </div>
+
+      <div>
+        <label for="average2">Smoothing Duration (pulses)</label>
+        <input type="number" name="" class="average" id="average2" min="1" max="20">
+      </div>
+
+      <div>
+        <label for="engine-input2">Measuring Engine? Otherwise wheel</label>
+        <input type="checkbox" name="" class="engine-input" id="engine-input2">
+      </div>
+    </div>
+
+    <div class="box">
+      <div>
+        <label for="inertia">Inertia (kg*m2)</label>
+        <input type="number" name="" id="inertia">
+      </div>
+    </div>
+
 
     <button id="save-button">Save Dyno Rotation Speed</button>
     <button id="load-button">Load Dyno Rotation Speed</button>
