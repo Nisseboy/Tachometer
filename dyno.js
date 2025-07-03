@@ -24,8 +24,8 @@ class Run {
       createElement("button", {innerText: "X", className: "remove-run", onclick: (e) => {removeSavedRun(this)}}),
 
       createElement("div", {innerText: this.name}),
-      createElement("input", {type: "checkbox", onchange: (e) => {this.renderHP = e.target.checked}}),
-      createElement("input", {type: "checkbox", onchange: (e) => {this.renderTQ = e.target.checked}})
+      createElement("input", {type: "checkbox", onchange: (e) => {this.renderHP = e.target.checked; renderSaved()}}),
+      createElement("input", {type: "checkbox", onchange: (e) => {this.renderTQ = e.target.checked; renderSaved()}})
     ]);
 
     this.element = e;
@@ -123,6 +123,11 @@ function startDyno() {
   dyno = true;
   document.getElementById("dyno-button").checked = true;
   runSelector.replaceChildren();
+  runSelector.appendChild(
+    createElement("button", {innerText: "Save Run", onclick: () => {
+      saveCurrentRun();
+    }}),
+  );
   elapsedTime = 0;
   runs = [];
   rawRun = new Run();
@@ -165,6 +170,11 @@ function nextRun() {
   runSelector.appendChild(elem);
 }
 
+function saveCurrentRun() {
+  let r = runs[shownRun];
+  r.name = nameInput.value + " - " + (shownRun + 1);
+  addSavedRun(r);
+}
 
 
 
