@@ -2,7 +2,44 @@ class Run {
   constructor() {
     this.hp = [];
     this.tq = [];
+
+    this.name = "dyno";
+
+    this.element = undefined;
+    this.renderHP = false;
+    this.renderTQ = false;
   }
+
+  from(data) {
+    this.hp = data.hp.map(e=>new Vec().from(e));
+    this.tq = data.tq.map(e=>new Vec().from(e));
+    this.name = data.name;
+
+    return this;
+  }
+
+  createElement() {
+
+    let e = createElement("div", {className: "saved-run"}, [
+      createElement("button", {innerText: "X", className: "remove-run", onclick: (e) => {removeSavedRun(this)}}),
+
+      createElement("div", {innerText: this.name}),
+      createElement("input", {type: "checkbox", onchange: (e) => {this.renderHP = e.target.checked}}),
+      createElement("input", {type: "checkbox", onchange: (e) => {this.renderTQ = e.target.checked}})
+    ]);
+
+    this.element = e;
+
+    return e;
+  }
+}
+
+function createElement(type, props = {}, children = []) {
+  let e = document.createElement(type);
+  for (let p in props) e[p] = props[p];
+
+  for (let c of children) e.appendChild(c);
+  return e;
 }
 
 let dtButton = document.getElementById("dt-button");
@@ -101,6 +138,7 @@ function reSimulate() {
   let d = dyno;
   let _saveGear = JSON.parse(JSON.stringify(saveGear));
 
+  let oldRun = shownRun;
   startDyno();
   shouldRender = false;
   for (let i in data) {
@@ -111,6 +149,7 @@ function reSimulate() {
   forceGearRatio = 0;
   shouldRender = true;
   toggleDyno(d);
+  shownRun = Math.min(oldRun, runs.length - 1);
   render();
 }
 function nextRun() {
@@ -187,13 +226,12 @@ function addDt(__dt) {
   rpm = 1 / fullRot * 60 * (settings.engineInput?1:ratio);
   speed = rpm / ratio * 60 * (Math.PI * settings.wheelR * 2) / 1000;
 
-  updateGauges();
+  if (shouldRender) updateGauges();
 
   if (dyno) {
     shownDts[1].push(new Vec(elapsedTime, dt));
     rpms.push(new Vec(elapsedTime, rpm));
     saveSpeeds[0].push(new Vec(elapsedTime, speed));
-    saveSpeeds[1].push(new Vec(elapsedTime, gpsSpeed));
 
     if (rpm > lastrpm && rpm < highestrpm) {
       nextRun();
@@ -222,9 +260,15 @@ function addDt(__dt) {
 }
 
 
-
+let audioaa = [];
 
 function render() {
+  
+  if (dtButton.value == 5) {
+    let lineInfo = [{c: new Vec(255, 0, 0), name: "."}];
+    
+    renderGraph(curveCtx, nameInput.value + " - Audio Input", [audioaa], lineInfo, {name: "i"}, {name: "aa"}, new Vec(undefined, 1));
+  }
   if (dtButton.value == 4) {
     let lineInfo = [{c: new Vec(255, 255, 0), name: "Torque (nm)"}, {c: new Vec(255, 0, 0), name: "Power (hp)"}];
     
@@ -261,5 +305,5 @@ function render() {
 
 
 
-dtButton.oninput = render;
+dtButton.oninput = ()=> {render(); runSelector.classList.toggle("hidden", dtButton.value != 0);};
 nameInput.onchange = render;

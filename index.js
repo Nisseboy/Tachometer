@@ -86,6 +86,8 @@ assignInput("gpsSpeed", false, "gps-input", true, updateValues);
 
 assignInput("maxSpeed", 120, "max-speed", false, updateValues);
 assignInput("maxRPM", 10000, "max-rpm", false, updateValues);
+
+assignInput("displayAudioSignal", false, "displayAudioSignal", false);
 //assignInput("missDetection", false, "missDetection", false);
 
 let finalDrive;
@@ -285,7 +287,6 @@ function renderGraph(ctx, name, data, lines, hor, ver, _max) {
   ctx.textBaseline = "top";
   ctx.fillText(name, ctx.canvas.width / 2, 0);
 }
-
 
 
 

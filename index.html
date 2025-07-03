@@ -16,6 +16,11 @@
       <button onclick="connectDummy()">Connect Dummy</button>
       <button onclick="connectSerial()">Connect Serial</button>
       <button onclick="connectAudio()">Connect Audio</button>
+
+      <div>
+        <label for="displayAudioSignal">Display Audio Signal</label>
+        <input type="checkbox" name="" id="displayAudioSignal">
+      </div>
     </div>
     
     <div class="box">
@@ -100,7 +105,7 @@
     </div>
     <div>
       <label for="dt-button">Curve</label>
-      <input type="range" name="" id="dt-button" min="0" max="4" value="0">
+      <input type="range" name="" id="dt-button" min="0" max="5" value="0">
     </div>
 
     <canvas id="curve-canvas"></canvas>
@@ -113,7 +118,9 @@
         <label for="name-input">Dyno Name</label>
         <input type="text" name="" id="name-input" value="dyno">
       </div>
+    </div>
 
+    <div class="box">
       <div>
         <label for="pulse-input2">Pulses per Rotation</label>
         <input type="number" name="" class="pulse-input" id="pulse-input2">
@@ -158,6 +165,12 @@
   </div>
 
 
+  
+  <div class="page" id="runs">
+    <div id="saved-runs"></div>
+  </div>
+
+
 
   <script src="Vec.js"></script>
   <script src="serial.js"></script>
@@ -167,5 +180,6 @@
   <script src="speed.js"></script>
   <script src="index.js"></script>
   <script src="gauges.js"></script>
+  <script src="runs.js"></script>
 </body>
 </html>

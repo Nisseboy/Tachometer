@@ -43,6 +43,8 @@ function handlePosition(position) {
         position.coords,
         position.timestamp
     ) * 3.6;    
+    
+    if (dyno) saveSpeeds[1].push(new Vec(elapsedTime, gpsSpeed));
 }
 
 function handleError(error) {
