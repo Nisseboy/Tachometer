@@ -1,11 +1,12 @@
 let inputsElem = document.getElementById("inputs");
 
 
-
+let dummyDts = [];
 
 let growing = false;
 let lastDummyInterval;
 function connectDummy() {  
+  /*
   let dummy = new Dummy();
 
   let i = 0;
@@ -16,9 +17,39 @@ function connectDummy() {
     dummy.update(dt);
     i++;
   }
+
+
+  for (let i = 0; i < dummyDts.length - 1; i++) {
+    let info = dummyDts[i];
+    let nextInfo = dummyDts[i + 1];
+
+    let startDt = info[0];
+    let nextDt = nextInfo[0];
+    let reps = info[1];
+
+    let step = (nextDt - startDt) / reps;
+
+      //console.log(elapsedTime, startDt, reps);
+    for (let j = 0; j < reps; j++) {
+      addDt(startDt + j * step);
+      
+    }
+  }
+
   stopDyno();
   shouldRender = true;
   render();
+  */
+
+  let currentDt = 60000;
+  if (lastDummyInterval) clearInterval(lastDummyInterval);
+
+  lastDummyInterval = setInterval(() => {
+    addDt(currentDt / 1000000 + Math.random() * 0.00001);
+    //addDt(200 / 1000000);
+    if (growing) currentDt *= 0.995;
+    if (currentDt < 5000) currentDt = 60000;
+  }, 16);
 }
 
 

@@ -1,3 +1,5 @@
+let numHits = 0;
+
 class Dummy {
   constructor() {
     this.rpm = 1000;
@@ -78,10 +80,20 @@ class Dummy {
 
     this.rot += this.rpm / 60 * dt;
     if (this.rot >= 1) {
-      this.rot--;
-      addDt(this.elapsedTime);
-      this.elapsedTime = 0;
+      this.rot = 0;
+
+      let lastDt = dummyDts[dummyDts.length - 1];
+      if (lastDt && lastDt[0] == this.elapsedTime) {
+        lastDt[1]++;
+      } else {
+        dummyDts.push([this.elapsedTime, 1]);
+      }
+      
+      this.elapsedTime = 0;      
+      numHits = 0;
     }
+      numHits++;
+    
 
 
     if (this.rpm > 12000) {
