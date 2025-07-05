@@ -18,6 +18,11 @@ curveCanvas.width = 1920;
 curveCanvas.height = 1080;
 let curveCtx = curveCanvas.getContext("2d");
 
+let gearCanvas = document.getElementById("gear-canvas");
+gearCanvas.width = 1920;
+gearCanvas.height = 320;
+let gearCtx = gearCanvas.getContext("2d");
+
 let gearTemplates = document.getElementById("gear-templates");
 
 
@@ -87,7 +92,6 @@ assignInput("gpsSpeed", false, "gps-input", true, updateValues);
 assignInput("maxSpeed", 120, "max-speed", false, updateValues);
 assignInput("maxRPM", 10000, "max-rpm", false, updateValues);
 
-assignInput("displayAudioSignal", false, "displayAudioSignal", false);
 //assignInput("missDetection", false, "missDetection", false);
 
 let finalDrive;
@@ -175,7 +179,7 @@ function strokeRect(ctx, pos, size) {
   ctx.stroke();
 }
 
-function renderGraph(ctx, name, data, lines, hor, ver, _max) {
+function renderGraph(ctx, name, data, lines, hor, ver, _max, ySteps) {
   if (data.length == 0) return;
 
   let hasX = data[0][0] instanceof Vec;
@@ -219,10 +223,11 @@ function renderGraph(ctx, name, data, lines, hor, ver, _max) {
   ctx.textBaseline = "top";
   
   ctx.strokeStyle = "rgb(100, 100, 100)";
+  let ysteps = ySteps || 10;
   let steps = 10;
-  for (let i = 0; i < steps + 1; i++) {
-    let y = size.y / steps * (steps - i);
-    ctx.fillText(Math.round(max.y / steps * i * 100) / 100, 0, y);
+  for (let i = 0; i < ysteps + 1; i++) {
+    let y = size.y / ysteps * (ysteps - i);
+    ctx.fillText(Math.round(max.y / ysteps * i * 100) / 100, 0, y);
 
     ctx.beginPath();
     ctx.moveTo(0, y);

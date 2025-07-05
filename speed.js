@@ -1,3 +1,5 @@
+let gpsInfo = document.getElementById("gps-info");
+
 let lastPosition = null;
 let lastTimestamp = null;
 
@@ -21,7 +23,8 @@ function getDistance(pos1, pos2) {
     return R * c;
 }
 
-function calculateSpeed(currentPosition, currentTimestamp) {
+function calculateSpeed(currentPosition, currentTimestamp) {    
+
     if (!lastPosition || !lastTimestamp) {
         lastPosition = currentPosition;
         lastTimestamp = currentTimestamp;
@@ -31,8 +34,11 @@ function calculateSpeed(currentPosition, currentTimestamp) {
     const distance = getDistance(lastPosition, currentPosition); // meters
     const timeElapsed = (currentTimestamp - lastTimestamp) / 1000; // seconds
 
+    gpsInfo.value = `${lastPosition.latitude}, ${lastPosition.longitude}      ${currentPosition.latitude}, ${currentPosition.longitude}      \n${timeElapsed}      \n${distance}`;
+
     lastPosition = currentPosition;
     lastTimestamp = currentTimestamp;
+
 
     if (timeElapsed === 0) return 0;
     return distance / timeElapsed; // meters per second

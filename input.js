@@ -6,15 +6,19 @@ let inputsElem = document.getElementById("inputs");
 let growing = false;
 let lastDummyInterval;
 function connectDummy() {  
-  let currentDt = 60000;
-  if (lastDummyInterval) clearInterval(lastDummyInterval);
+  let dummy = new Dummy();
 
-  lastDummyInterval = setInterval(() => {
-    addDt(currentDt / 1000000 + Math.random() * 0.00001);
-    //addDt(200 / 1000000);
-    if (growing) currentDt *= 0.995;
-    if (currentDt < 5000) currentDt = 60000;
-  }, 16);
+  let i = 0;
+  let dt = 0.0001;
+  startDyno();
+  shouldRender = false;
+  while (dummy.gear < gears.length) {
+    dummy.update(dt);
+    i++;
+  }
+  stopDyno();
+  shouldRender = true;
+  render();
 }
 
 
@@ -55,7 +59,7 @@ async function connectAudio() {
   function process() {
     analyser.getFloatTimeDomainData(buffer);
     for (let i = 1; i < buffer.length; i++) {
-      if (settings.displayAudioSignal) audioaa.push(buffer[i]);
+      if (dtButton.value == 5) audioaa.push(buffer[i]);
       if (audioaa.length >= 2**16) audioaa.shift();
       
       if (buffer[i - 1] < threshold && buffer[i] >= threshold) {

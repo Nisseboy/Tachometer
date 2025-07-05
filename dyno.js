@@ -116,8 +116,9 @@ function startDyno() {
   saveGear = [];
   saveSpeeds = [[], []];
   shownDts = [[], []];
-  rpms = [];
   shownDtsIndex = -1;
+  shownGear = [];
+  rpms = [];
   lastDt = 0;
   cum = 0;
   dyno = true;
@@ -187,6 +188,7 @@ let lastDt = 0;
 let dts = [];
 let shownDts = [[], []];
 let shownDtsIndex = -1;
+let shownGear = [];
 let cum = 0;
 let preventDoubling = false;
 
@@ -201,6 +203,17 @@ function addDt(__dt) {
     saveDts.push(__dt);
     saveGear.push(ratio);
     shownDts[0].push(new Vec(elapsedTime, __dt));
+
+    let r = ratio / finalDrive;
+    let g = 0;
+    for (let i = 0; i < gears.length; i++) {
+      if (Math.abs(gears[i] - r) < 0.001) {
+        g = i + 1;
+      }
+    }
+    
+
+    shownGear.push(new Vec(elapsedTime, g));
   }
   
   cum += __dt;
@@ -250,7 +263,7 @@ function addDt(__dt) {
     let diff = rpm - lastrpm;
     let deltaAV = diff * 0.10472;
     let AA = deltaAV / dt;
-    let torque = AA * (settings.inertia / (settings.engineInput?(ratio):ratio));
+    let torque = AA * (settings.inertia / (settings.engineInput?(1):ratio));
     let power = torque * rpm / 7127;
 
     if (rpm > highestrpm && power > 0) {
@@ -311,9 +324,11 @@ function render() {
 
     renderGraph(curveCtx, nameInput.value + " - " + (shownRun + 1), [runs[shownRun].tq, runs[shownRun].hp], lineInfo, {name: "rpm"}, {name: "power/torque"}, max);
   }  
+
+  renderGraph(gearCtx, "Gear", [shownGear], [{c: new Vec(255, 0, 0)}], {name: "Time (s)"}, {name: "Gear"}, undefined, gears.length)
 }
 
 
 
-dtButton.oninput = ()=> {render(); runSelector.classList.toggle("hidden", dtButton.value != 0);};
+dtButton.oninput = ()=> {render(); runSelector.classList.toggle("hidden", dtButton.value != 0); gearCanvas.classList.toggle("hidden", dtButton.value == 0);};
 nameInput.onchange = render;

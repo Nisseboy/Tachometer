@@ -16,11 +16,6 @@
       <button onclick="connectDummy()">Connect Dummy</button>
       <button onclick="connectSerial()">Connect Serial</button>
       <button onclick="connectAudio()">Connect Audio</button>
-
-      <div>
-        <label for="displayAudioSignal">Display Audio Signal</label>
-        <input type="checkbox" name="" id="displayAudioSignal">
-      </div>
     </div>
     
     <div class="box">
@@ -109,6 +104,7 @@
     </div>
 
     <canvas id="curve-canvas"></canvas>
+    <canvas id="gear-canvas" class="hidden"></canvas>
     <div id="runs"></div>
     <a id="download" download="dyno.jpg" href="" onclick="downloadImage(this, 1);">Save Image</a>
     
@@ -173,10 +169,13 @@
   </div>
 
 
+  <textarea name="" id="gps-info" style="position: absolute; top: 0; right: 0;"></textarea>
+
 
   <script src="Vec.js"></script>
   <script src="serial.js"></script>
   <script src="serial2.js"></script>
+  <script src="dummy.js"></script>
   <script src="dyno.js"></script>
   <script src="input.js"></script>
   <script src="speed.js"></script>
