@@ -14,6 +14,17 @@ canvas {
 #gear-canvas {
   aspect-ratio: 1920 / 320;
 }
+#curve-range {
+  width: min(calc(50vh / 9 * 16), 100vw);
+}
+#curve-range-holder {
+  position: relative;
+}
+#curve-range-holder div {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
 
 #pages-buttons {
   margin-bottom: 2rem;

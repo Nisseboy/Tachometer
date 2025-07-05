@@ -6,50 +6,54 @@ let dummyDts = [];
 let growing = false;
 let lastDummyInterval;
 function connectDummy() {  
-  /*
-  let dummy = new Dummy();
+  if (true) {
+    let dummy = new Dummy();
 
-  let i = 0;
-  let dt = 0.0001;
-  startDyno();
-  shouldRender = false;
-  while (dummy.gear < gears.length) {
-    dummy.update(dt);
-    i++;
-  }
-
-
-  for (let i = 0; i < dummyDts.length - 1; i++) {
-    let info = dummyDts[i];
-    let nextInfo = dummyDts[i + 1];
-
-    let startDt = info[0];
-    let nextDt = nextInfo[0];
-    let reps = info[1];
-
-    let step = (nextDt - startDt) / reps;
-
-      //console.log(elapsedTime, startDt, reps);
-    for (let j = 0; j < reps; j++) {
-      addDt(startDt + j * step);
-      
+    let i = 0;
+    let dt = 0.0001;
+    startDyno();
+    shouldRender = false;
+    while (dummy.gear < gears.length) {
+      dummy.update(dt);
+      i++;
     }
+
+
+    for (let i = 0; i < dummyDts.length - 1; i++) {
+      let info = dummyDts[i];
+      let nextInfo = dummyDts[i + 1];
+
+      let startDt = info[0];
+      let nextDt = nextInfo[0];
+      let reps = info[1];
+      let g = info[2];
+
+      let step = (nextDt - startDt) / reps;
+
+        //console.log(elapsedTime, startDt, reps);
+      for (let j = 0; j < reps; j++) {
+        gear = g;
+        addDt(startDt + j * step);
+        
+      }
+    }
+
+    stopDyno();
+    shouldRender = true;
+    render();
+      
+  } else {  
+
+    let currentDt = 60000;
+    if (lastDummyInterval) clearInterval(lastDummyInterval);
+
+    lastDummyInterval = setInterval(() => {
+      addDt(currentDt / 1000000 + Math.random() * 0.00001);
+      //addDt(200 / 1000000);
+      if (growing) currentDt *= 0.995;
+      if (currentDt < 5000) currentDt = 60000;
+    }, 16);
   }
-
-  stopDyno();
-  shouldRender = true;
-  render();
-  */
-
-  let currentDt = 60000;
-  if (lastDummyInterval) clearInterval(lastDummyInterval);
-
-  lastDummyInterval = setInterval(() => {
-    addDt(currentDt / 1000000 + Math.random() * 0.00001);
-    //addDt(200 / 1000000);
-    if (growing) currentDt *= 0.995;
-    if (currentDt < 5000) currentDt = 60000;
-  }, 16);
 }
 
 

@@ -50,6 +50,16 @@
         <label for="wheelR-input1">Wheel Radius (m)</label>
         <input type="number" name="" class="wheelR-input" id="wheelR-input1">
       </div>
+      
+      <div>
+        <label for="inertia">Mass (kg)</label>
+        <input type="number" name="" id="inertia">
+      </div>
+      
+      <div>
+        <label for="drag-area1">Drag Area</label>
+        <input type="number" name="" class="drag-area" id="drag-area1">
+      </div>
 
       <div>
         <label for="gps-input">Measure GPS Speed</label>
@@ -104,6 +114,10 @@
     </div>
 
     <canvas id="curve-canvas"></canvas>
+    <div id="curve-range-holder">
+      <input type="range" name="" id="curve-range" min="0" max="100" step="0.1">
+      <div>0</div>
+    </div>
     <canvas id="gear-canvas" class="hidden"></canvas>
     <div id="runs"></div>
     <a id="download" download="dyno.jpg" href="" onclick="downloadImage(this, 1);">Save Image</a>
@@ -139,17 +153,30 @@
     </div>
 
     <div class="box">
-      <div>
-        <label for="inertia">Inertia (kg*m2)</label>
-        <input type="number" name="" id="inertia">
-      </div>
 
       <div>
         <label for="wheelR-input2">Wheel Radius (m)</label>
         <input type="number" name="" class="wheelR-input" id="wheelR-input2">
       </div>
+      
+      <div>
+        <label for="drag-area2">Drag Area</label>
+        <input type="number" name="" class="drag-area" id="drag-area2">
+      </div>
     </div>
 
+    <div class="box" id="drag-area-box">
+      <button onclick="estimateDragArea()">Estimate Drag Area</button>
+      
+      <div>
+        <label for="drag-low-from">Low Run</label>
+        <input type="number" name="" id="drag-low-from" class="drag-area-input">
+      </div>
+      <div>
+        <label for="drag-low-to">High Run</label>
+        <input type="number" name="" id="drag-low-to" class="drag-area-input">
+      </div>
+    </div>
 
     <div class="box">
       Raw Data
@@ -179,8 +206,8 @@
   <script src="dyno.js"></script>
   <script src="input.js"></script>
   <script src="speed.js"></script>
-  <script src="index.js"></script>
   <script src="gauges.js"></script>
+  <script src="index.js"></script>
   <script src="runs.js"></script>
 </body>
 </html>

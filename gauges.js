@@ -95,14 +95,5 @@ class Gauge {
 }
 
 
-let speedometer = new Gauge({max: settings.maxSpeed, step: 10});
-let tachometer = new Gauge({max: settings.maxRPM, mult: 0.001, step: 1});
-
-let tachPage = document.getElementById("tachometer");
-tachPage.appendChild(speedometer.canvas);
-tachPage.appendChild(tachometer.canvas);
-
-
-
 
 

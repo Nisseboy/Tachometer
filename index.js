@@ -1,5 +1,6 @@
+const AirDensity = 1.225;
 
-a = true;
+
 
 
 let rpmGauges = document.getElementsByClassName("rpm");
@@ -48,7 +49,7 @@ function saveSettings() {
 }
 
 function assignInput(settingName, defaultValue, id, re, onchange = () => {}) {
-  settings[settingName] = settings[settingName] || defaultValue;
+  settings[settingName] = settings[settingName] == undefined ? defaultValue : settings[settingName];
 
   if (!id) return;
   let _input = document.getElementById(id);
@@ -84,7 +85,8 @@ assignInput("gears", gearsTemplates["AM6"], "gears", false, updateValues);
 assignInput("wheelR", 0.3, "wheelR-input", true);
 assignInput("pulses", 5, "pulse-input", true);
 assignInput("average", 1, "average", true);
-assignInput("inertia", 1, "inertia", true);
+assignInput("inertia", 165, "inertia", true);
+assignInput("dragArea", 0.6, "drag-area", true);
 assignInput("cutoff", 0, "cutoff", true);
 assignInput("engineInput", false, "engine-input", true);
 assignInput("gpsSpeed", false, "gps-input", true, updateValues);
@@ -117,6 +119,16 @@ for (let i in pages) {
   elem.onclick = () => {setPage(i)};
   pagesButtons.appendChild(elem);
 }
+
+
+
+let speedometer = new Gauge({max: settings.maxSpeed, step: 10});
+let tachometer = new Gauge({max: settings.maxRPM, mult: 0.001, step: 1});
+
+let tachPage = document.getElementById("tachometer");
+tachPage.appendChild(speedometer.canvas);
+tachPage.appendChild(tachometer.canvas);
+
 
 
 updateValues();
@@ -179,8 +191,11 @@ function strokeRect(ctx, pos, size) {
   ctx.stroke();
 }
 
+let lastMax = undefined;
+let lastGraph = undefined;
 function renderGraph(ctx, name, data, lines, hor, ver, _max, ySteps) {
   if (data.length == 0) return;
+  lastGraph = data;
 
   let hasX = data[0][0] instanceof Vec;
 
@@ -201,6 +216,8 @@ function renderGraph(ctx, name, data, lines, hor, ver, _max, ySteps) {
 
   if (_max?.x) max.x = _max.x;
   if (_max?.y) max.y = _max.y;
+
+  lastMax = max;
 
   let scale = size._divV(max);
 
@@ -292,9 +309,33 @@ function renderGraph(ctx, name, data, lines, hor, ver, _max, ySteps) {
   ctx.textBaseline = "top";
   ctx.fillText(name, ctx.canvas.width / 2, 0);
 }
+function getClosestFromGraph(graph, index) {
+  if (!graph) return;
+  for (let i = 0; i < graph.length; i++) {
+    let val = graph[i];
+    
+    if (val.x != undefined) {      
+      if (index <= val.x) return val.copy();
+    } else {
+      if (index <= i) return new Vec(i, val);
+    }
+  }
+
+}
 
 
-
+let crh = document.getElementById("curve-range-holder");
+function handleSlider() {
+  let v = crh.children[0].value / 100 ;
+  v = (Math.max(v * curveCanvas.width - 200, 0) / 1720 * lastMax.x).toFixed(0);
+  crh.children[1].innerText = v;
+  let val = getClosestFromGraph(lastGraph[0], v);
+  
+  if (val) {
+    crh.children[1].innerText = val.x.toFixed(0) + ", " + val.y;
+  }
+}
+crh.children[0].addEventListener("input", handleSlider);
 
 
 
@@ -353,3 +394,8 @@ function hsvToRgb(h, s, v) {
   }
   return new Vec(Math.round(r * 255), Math.round(g * 255), Math.round(b * 255));
 }
+
+
+
+
+render();

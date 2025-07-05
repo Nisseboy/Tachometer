@@ -3,6 +3,9 @@ class Run {
     this.hp = [];
     this.tq = [];
 
+    this.startTime = undefined;
+    this.endTime = undefined;
+
     this.name = "dyno";
 
     this.element = undefined;
@@ -137,6 +140,7 @@ function startDyno() {
 function stopDyno() {
   dyno = false;
   document.getElementById("dyno-button").checked = false;
+  run.endTime = elapsedTime;
 }
 function reSimulate() {
   let data = JSON.parse(JSON.stringify(saveDts));
@@ -160,7 +164,9 @@ function reSimulate() {
 }
 function nextRun() {
   highestrpm = 0;
+  if (run) run.endTime = elapsedTime;
   run = new Run();
+  run.startTime = elapsedTime;
   runs.push(run);
   shownRun = runs.length - 1;
   let s = shownRun;
@@ -184,6 +190,7 @@ let speed = undefined;
 let rpms = [];
 let elapsedTime = 0;
 let lastrpm = undefined;
+let lastspeed = undefined;
 let lastDt = 0;
 let dts = [];
 let shownDts = [[], []];
@@ -245,6 +252,7 @@ function addDt(__dt) {
 
   let fullRot = dt * settings.pulses;
   lastrpm = rpm;
+  lastspeed = speed;
   
   rpm = 1 / fullRot * 60 * (settings.engineInput?1:ratio);
   speed = rpm / ratio * 60 * (Math.PI * settings.wheelR * 2) / 1000;
@@ -252,6 +260,7 @@ function addDt(__dt) {
   if (shouldRender) updateGauges();
 
   if (dyno) {
+    
     shownDts[1].push(new Vec(elapsedTime, dt));
     rpms.push(new Vec(elapsedTime, rpm));
     saveSpeeds[0].push(new Vec(elapsedTime, speed));
@@ -260,10 +269,24 @@ function addDt(__dt) {
       nextRun();
     } 
 
-    let diff = rpm - lastrpm;
+    let A = ((speed - lastspeed) / 3.6) / dt;
+    let F = A * settings.inertia;
+    let torqueRaw = F * settings.wheelR / ratio;
+
+    /*let diff = rpm - lastrpm;
     let deltaAV = diff * 0.10472;
     let AA = deltaAV / dt;
-    let torque = AA * (settings.inertia / (settings.engineInput?(1):ratio));
+    let torqueRaw = AA * (settings.inertia / (settings.engineInput?(1):ratio));*/
+
+    let aeroForce = 0.5 * settings.dragArea * AirDensity * ((speed / 3.6) ** 2);
+    let aeroTorque = aeroForce * settings.wheelR / ratio;
+
+    let torque = torqueRaw;
+    if (torque > 0) torque += aeroTorque;
+    
+    //console.log(rpm);
+    
+
     let power = torque * rpm / 7127;
 
     if (rpm > highestrpm && power > 0) {
@@ -272,9 +295,9 @@ function addDt(__dt) {
     }
 
     if (power > 0) {
-      rawRun.hp.push(new Vec(elapsedTime, power));
-      rawRun.tq.push(new Vec(elapsedTime, torque));
-    }
+      rawRun.hp.push(new Vec(elapsedTime, torque));
+      rawRun.tq.push(new Vec(elapsedTime, torqueRaw));
+    } 
 
     highestrpm = Math.max(rpm, highestrpm);
   }
@@ -286,6 +309,8 @@ function addDt(__dt) {
 let audioaa = [];
 
 function render() {
+  renderGraph(gearCtx, "Gear", [shownGear], [{c: new Vec(255, 0, 0)}], {name: "Time (s)"}, {name: "Gear"}, undefined, gears.length)
+
   
   if (dtButton.value == 5) {
     let lineInfo = [{c: new Vec(255, 0, 0), name: "."}];
@@ -293,9 +318,9 @@ function render() {
     renderGraph(curveCtx, nameInput.value + " - Audio Input", [audioaa], lineInfo, {name: "i"}, {name: "aa"}, new Vec(undefined, 1));
   }
   if (dtButton.value == 4) {
-    let lineInfo = [{c: new Vec(255, 255, 0), name: "Torque (nm)"}, {c: new Vec(255, 0, 0), name: "Power (hp)"}];
+    let lineInfo = [{c: new Vec(255, 255, 0), name: "Uncorrected (nm)"}, {c: new Vec(255, 0, 0), name: "Corrected for drag+ (nm)"}];
     
-    renderGraph(curveCtx, nameInput.value + " - HP+TQ", [rawRun.tq, rawRun.hp], lineInfo, {name: "Time (s)"}, {name: "power/torque"});
+    renderGraph(curveCtx, nameInput.value + " - Torque", [rawRun.tq, rawRun.hp], lineInfo, {name: "Time (s)"}, {name: "Torque"}, new Vec(elapsedTime, undefined));
   }
   if (dtButton.value == 3) {
     let lineInfo = [{c: new Vec(255, 0, 0), name: "Wheel (kmh)"}, {c: new Vec(0, 0, 255), name: "GPS (kmh)"}];
@@ -325,9 +350,64 @@ function render() {
     renderGraph(curveCtx, nameInput.value + " - " + (shownRun + 1), [runs[shownRun].tq, runs[shownRun].hp], lineInfo, {name: "rpm"}, {name: "power/torque"}, max);
   }  
 
-  renderGraph(gearCtx, "Gear", [shownGear], [{c: new Vec(255, 0, 0)}], {name: "Time (s)"}, {name: "Gear"}, undefined, gears.length)
+  handleSlider();
+
+  updateGauges();
 }
 
+
+function estimateDragArea() {
+  let inputs = [...document.getElementsByClassName("drag-area-input")].map(e=>parseInt(e.value));
+  for (let i of inputs) {
+    if (isNaN(i)) return;
+  }
+  
+
+  let runLow = runs[inputs[0]-1];
+  let runHigh = runs[inputs[1]-1];
+  
+  
+  let tqHighPt = new Vec(0, 0);
+  for (let e of rawRun.tq) {
+    if (e.x < runHigh.startTime || e.x > runHigh.endTime) continue;
+
+    if (e.y >= tqHighPt.y) {
+      tqHighPt = e.copy();
+    }
+  }
+  
+  let tqHigh = tqHighPt.y;
+  let rpmHigh = getClosestFromGraph(rpms, tqHighPt.x).y;
+  let speedHigh = getClosestFromGraph(saveSpeeds[0], tqHighPt.x).y;
+  let gearHigh = finalDrive * gears[getClosestFromGraph(shownGear, (runHigh.startTime + runHigh.endTime) / 2).y - 1];
+
+
+  let rpmLowPt = new Vec(0, 0);
+  for (let e of rpms) {
+    if (e.x < runLow.startTime || e.x > runLow.endTime) continue;
+
+    if (e.y > rpmHigh) {
+      rpmLowPt = e.copy();
+      break;
+    }
+  }
+  let rpmLow = rpmLowPt.y;
+  let tqLow = getClosestFromGraph(rawRun.tq, rpmLowPt.x).y;
+  let speedLow = getClosestFromGraph(saveSpeeds[0], rpmLowPt.x).y;
+  let gearLow = finalDrive * gears[getClosestFromGraph(shownGear, (runLow.startTime + runLow.endTime) / 2).y - 1];
+
+  
+  let fHigh = tqHigh * gearHigh / settings.wheelR;
+  let fLow = tqLow * gearLow / settings.wheelR;
+
+
+
+  settings.dragArea = (fLow - fHigh) / (0.5 * AirDensity * (Math.pow(speedHigh / 3.6, 2) - Math.pow(speedLow / 3.6, 2)));
+  let elems = [...document.getElementsByClassName("drag-area")];
+  for (let e of elems) e.value = settings.dragArea;
+  
+  saveSettings();
+}
 
 
 dtButton.oninput = ()=> {render(); runSelector.classList.toggle("hidden", dtButton.value != 0); gearCanvas.classList.toggle("hidden", dtButton.value == 0);};

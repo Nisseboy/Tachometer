@@ -4,7 +4,9 @@ class Dummy {
   constructor() {
     this.rpm = 1000;
     this.gear = 0;
-    this.mass = 150; //kg
+
+    this.dragArea = 0.6;
+    this.lastSpeed = 0;
 
     this.torqueCurve = [
       2.0,  // 0 rpm
@@ -15,11 +17,11 @@ class Dummy {
       4.5,  // 2500 rpm
       5.0,  // 3000 rpm
       5.5,  // 3500 rpm
-      6.0,  // 4000 rpm (torque starts to rise)
+      6.0,  // 4000 rpm
       6.2,  // 4500 rpm
-      6.5,  // 5000 rpm (peak torque zone)
+      6.5,  // 5000 rpm
       6.8,  // 5500 rpm
-      7.0,  // 6000 rpm (peak torque)
+      7.0,  // 6000 rpm
       6.8,  // 6500 rpm
       6.5,  // 7000 rpm
       6.2,  // 7500 rpm
@@ -66,13 +68,17 @@ class Dummy {
 
 
     this.elapsedTime += dt;
+
+    let speed = (this.rpm / (totalRatio * 60)) * (2 * Math.PI * settings.wheelR);
     
     const torque = this.getTorqueAtRpm(this.rpm);
     const wheelTorque = torque * totalRatio;
-    const force = wheelTorque / settings.wheelR;
-    const acc = force / this.mass;
 
-    let speed = (this.rpm / (totalRatio * 60)) * (2 * Math.PI * settings.wheelR);
+    const fAero = 0.5 * this.dragArea * AirDensity * (speed ** 2);
+
+    const force = wheelTorque / settings.wheelR - fAero;
+    const acc = force / settings.inertia;
+    
 
     speed += acc * dt;
 
@@ -80,27 +86,31 @@ class Dummy {
 
     this.rot += this.rpm / 60 * dt;
     if (this.rot >= 1) {
+      
       this.rot = 0;
 
       let lastDt = dummyDts[dummyDts.length - 1];
       if (lastDt && lastDt[0] == this.elapsedTime) {
         lastDt[1]++;
       } else {
-        dummyDts.push([this.elapsedTime, 1]);
+        dummyDts.push([this.elapsedTime, 1, gear]);
       }
       
       this.elapsedTime = 0;      
       numHits = 0;
     }
-      numHits++;
+    numHits++;
     
-
-
-    if (this.rpm > 12000) {
+    
+    if (this.rpm > 12000 || speed - this.lastSpeed <= 0.000000001) {            
       this.rpm = 1000;
       this.gear++;
+      this.lastSpeed = 0;
+      
       return;
     }
+
+    this.lastSpeed = speed;
   }
 
 }
