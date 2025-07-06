@@ -17,6 +17,8 @@ class Run {
     this.hp = data.hp.map(e=>new Vec().from(e));
     this.tq = data.tq.map(e=>new Vec().from(e));
     this.name = data.name;
+    this.startTime = data.startTime;
+    this.endTime = data.endTime;
 
     return this;
   }

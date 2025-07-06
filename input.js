@@ -6,7 +6,7 @@ let dummyDts = [];
 let growing = false;
 let lastDummyInterval;
 function connectDummy() {  
-  if (false) {
+  if (true) {
     let dummy = new Dummy();
 
     let i = 0;
