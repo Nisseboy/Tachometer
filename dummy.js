@@ -71,7 +71,7 @@ class Dummy {
     const torque = this.getTorqueAtRpm(this.rpm);
     const wheelTorque = torque * totalRatio;
     const fAero = 0.5 * this.dragArea * AirDensity * (speed ** 2);
-    const force = wheelTorque / settings.wheelR - fAero;
+    const force = wheelTorque / settings.wheelR - fAero - 0.5*speed;
     const acc = force / settings.inertia;
 
     // compute new speed/rpm
