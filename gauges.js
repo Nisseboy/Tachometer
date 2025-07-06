@@ -96,6 +96,7 @@ class Gauge {
 
   renderShiftSpeeds() {
     let ss = settings.shiftSpeeds;
+    if (!ss) return
 
     this.ctx.save();
 
