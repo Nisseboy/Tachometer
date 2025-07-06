@@ -71,7 +71,7 @@ class Dummy {
     const torque = this.getTorqueAtRpm(this.rpm);
     const wheelTorque = torque * totalRatio;
     const fAero = 0.5 * this.dragArea * AirDensity * (speed ** 2);
-    const force = wheelTorque / settings.wheelR - fAero - 0.5*speed;
+    const force = wheelTorque / settings.wheelR - fAero - 0.015 * settings.inertia * 9.81;
     const acc = force / settings.inertia;
 
     // compute new speed/rpm
@@ -147,4 +147,93 @@ class Dummy {
     }
   }
 
+}
+
+class SimDummy extends Dummy {
+  constructor(run) {
+    super();
+
+    this.rpm = 1500;
+    this.run = run;
+    this.dragArea = settings.dragArea;
+    
+    this.done = false;
+
+    this.speed = 0;
+
+    this.shiftGoal = 0;
+
+    this.times = [undefined, undefined, undefined, undefined];
+  }
+
+  getTorqueAtRpm(rpm) {
+    let tq = getClosestFromGraph(this.run.tq, rpm);
+    if (tq == undefined) return 0;
+    return tq.y;
+  }
+
+  update(dt) {
+    const gearRatio = gears[this.gear];
+    let totalRatio = gearRatio * finalDrive;
+
+    // compute speed
+    this.speed = (this.rpm / (totalRatio * 60)) * (2 * Math.PI * settings.wheelR);
+
+    // get torque and acceleration
+    const torque = this.getTorqueAtRpm(this.rpm);
+    const wheelTorque = torque * totalRatio;
+    const fAero = 0.5 * this.dragArea * AirDensity * (this.speed ** 2);
+    const force = wheelTorque / settings.wheelR - fAero - 0.015 * settings.inertia * 9.81;
+    const acc = force / settings.inertia;
+
+    if (this.speed * 3.6 >= settings.shiftSpeeds[this.shiftGoal]) {
+      this.shiftGoal++;
+      this.gear++;
+      totalRatio = gears[this.gear] * finalDrive;
+    }
+
+    // compute new speed/rpm
+    const newSpeed = this.speed + acc * dt;
+    this.rpm = newSpeed / (2 * Math.PI * settings.wheelR) * totalRatio * 60;
+    
+    if (!this.times[0] && this.speed * 3.6 > 50) this.times[0] = this.elapsedTime.toFixed(1); 
+    if (!this.times[1] && this.speed * 3.6 > 80) this.times[1] = this.elapsedTime.toFixed(1); 
+    if (!this.times[2] && this.speed * 3.6 > 100) this.times[2] = this.elapsedTime.toFixed(1); 
+    if (!this.times[3] && this.speed * 3.6 > 120) this.times[3] = this.elapsedTime.toFixed(1); 
+
+    this.elapsedTime += dt;
+
+
+
+    if (this.speed - this.lastSpeed <= 1e-3) {
+      this.done = true;
+    }
+
+    this.lastSpeed = this.speed;
+    //console.log(this.rpm);
+    
+    
+    
+  }
+}
+
+
+
+
+
+
+
+function simulateRun() {
+  let val = parseInt(document.getElementById("run-sim").value);
+  if (isNaN(val)) return;
+
+  let run = runs[parseInt(val) - 1];
+  
+  let dummy = new SimDummy(run);
+  while (!dummy.done) {
+    dummy.update(0.01);
+  }
+  
+
+  document.getElementById("run-sim-result").innerText = `Time: ${dummy.elapsedTime.toFixed(1)} \nTop speed: ${(dummy.speed * 3.6).toFixed(1)} \n0-50: ${dummy.times[0]} \n0-80: ${dummy.times[1]} \n0-100: ${dummy.times[2]} \n0-120: ${dummy.times[3]}`;
 }
