@@ -367,6 +367,7 @@ function estimateDragArea() {
   let runHigh = runs[inputs[1]-1];
   
   
+  
   let tqHighPt = new Vec(0, 0);
   for (let e of rawRun.tq) {
     if (e.x < runHigh.startTime || e.x > runHigh.endTime) continue;
@@ -397,16 +398,53 @@ function estimateDragArea() {
   let gearLow = finalDrive * gears[getClosestFromGraph(shownGear, (runLow.startTime + runLow.endTime) / 2).y - 1];
 
   
+
+  console.log(tqLow, tqHigh, rpmLow, rpmHigh);
   let fHigh = tqHigh * gearHigh / settings.wheelR;
   let fLow = tqLow * gearLow / settings.wheelR;
 
 
 
   settings.dragArea = (fLow - fHigh) / (0.5 * AirDensity * (Math.pow(speedHigh / 3.6, 2) - Math.pow(speedLow / 3.6, 2)));
-  let elems = [...document.getElementsByClassName("drag-area")];
+  console.log(settings.dragArea);
+  
+ /* let elems = [...document.getElementsByClassName("drag-area")];
   for (let e of elems) e.value = settings.dragArea;
   
+  reSimulate();
   saveSettings();
+  */
+}
+
+
+function estimateShiftSpeeds() {
+  let val = parseInt(document.getElementById("shift-speed").value);
+  if (isNaN(val)) return;
+
+  let run = runs[val - 1];
+  
+  settings.shiftSpeeds = [];
+  for (let i = 0; i < gears.length - 1; i++) {
+    let gear = gears[i];
+    let nextGear = gears[i+1];
+
+    for (let e of run.tq) {
+      let rpm = e.x;
+      let tqLow = e.y * gear;
+
+      let tqHigh = getClosestFromGraph(run.tq, rpm / gear * nextGear).y * nextGear;
+
+      if (tqHigh > tqLow) {
+        settings.shiftSpeeds.push(rpm / gear / finalDrive * 60 * (Math.PI * settings.wheelR * 2) / 1000);
+
+        break;
+      }
+    }
+  }
+
+  saveSettings();
+  updateGauges();
+  
 }
 
 

@@ -164,6 +164,7 @@ function updateGauges() {
   tachometer.value = rpm;
   speedometer.render();
   tachometer.render();
+  speedometer.renderShiftSpeeds();
 
 }
 

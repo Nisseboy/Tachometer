@@ -92,6 +92,35 @@ class Gauge {
     this.ctx.restore();
 
   }
+
+
+  renderShiftSpeeds() {
+    let ss = settings.shiftSpeeds;
+
+    this.ctx.save();
+
+
+    let size = new Vec(this.canvas.width, this.canvas.height);
+
+    this.ctx.translate(size.x / 2, size.y / 2);
+    this.ctx.rotate(Math.PI / 2);
+
+
+    for (let s of ss) {
+      let rot = s / this.max * (this.fullRot) + this.minRot;
+      this.ctx.rotate(rot);
+
+      let s2 = new Vec(60, 2);
+
+      rect(this.ctx, new Vec(size.x / 2 - s2.x, -s2.y / 2), s2);
+      this.ctx.fill();
+
+      this.ctx.rotate(-rot);
+    }
+
+    
+    this.ctx.restore();
+  }
 }
 
 
