@@ -121,6 +121,7 @@ function startDyno() {
   shownDts = [[], []];
   shownDtsIndex = -1;
   shownGear = [];
+  h = 0;
   rpms = [];
   lastDt = 0;
   cum = 0;
@@ -191,6 +192,7 @@ let rpms = [];
 let elapsedTime = 0;
 let lastrpm = undefined;
 let lastspeed = undefined;
+let h = 0;
 let lastDt = 0;
 let dts = [];
 let shownDts = [[], []];
@@ -255,6 +257,14 @@ function addDt(__dt) {
   lastspeed = speed;
   
   rpm = 1 / fullRot * 60 * (settings.engineInput?1:ratio);
+
+  if (autoShiftButton.checked && rpm < h * 0.9) {
+    changeGear(1);
+    ratio = finalDrive * gears[gear - 1];
+  }
+
+  h = Math.max(h, rpm);
+
   speed = rpm / ratio * 60 * (Math.PI * settings.wheelR * 2) / 1000;
 
   if (shouldRender) updateGauges();
