@@ -50,12 +50,13 @@ let nameInput = document.getElementById("name-input");
 let autoShiftButton = document.getElementById("auto-shift");
 
 
-
+let toRestart = true;
 let dyno = false;
 let highestrpm = 0;
 let saveDts = [];
 let saveGear = [];
 let saveSpeeds = [[], []];
+let saveRunInfo = [];
 
 let run = new Run();
 let rawRun = new Run();
@@ -71,7 +72,10 @@ document.getElementById("dyno-button").onchange = e => {
   dyno = e.target.checked;
 
   if (dyno) {
-    startDyno();
+    if (toRestart) startDyno();
+    else continueDyno();
+  } else {
+    stopDyno();
   }
 };
 document.getElementById("save-button").onclick = () => {
@@ -93,11 +97,12 @@ document.getElementById("import-button").onclick = async () => {
 }
 
 function exportRawData() {
-  return JSON.stringify([saveDts, saveSpeeds[1], saveGear]);
+  return JSON.stringify([saveDts, saveSpeeds[1], saveGear, saveRunInfo]);
 }
 function importRawData(data) {
   saveDts = data[0];
   saveGear = data[2];
+  saveRunInfo = data[3];
 
   reSimulate();
   stopDyno();
@@ -116,9 +121,11 @@ function toggleDyno(force) {
   }
 }
 function startDyno() {
+  toRestart = false;
   saveDts = [];
   saveGear = [];
   saveSpeeds = [[], []];
+  saveRunInfo = [];
   shownDts = [[], []];
   shownDtsIndex = -1;
   shownGear = [];
@@ -130,6 +137,12 @@ function startDyno() {
   document.getElementById("dyno-button").checked = true;
   runSelector.replaceChildren();
   runSelector.appendChild(
+    createElement("button", {innerText: "X", onclick: () => {
+      stopDyno();
+      toRestart = true;
+    }}),
+  );
+  runSelector.appendChild(
     createElement("button", {innerText: "Save Run", onclick: () => {
       saveCurrentRun();
     }}),
@@ -138,6 +151,12 @@ function startDyno() {
   runs = [];
   rawRun = new Run();
   nextRun();
+}
+function continueDyno() {
+  dyno = true;
+  document.getElementById("dyno-button").checked = true;
+  nextRun();
+  render();
 }
 function stopDyno() {
   dyno = false;
@@ -149,14 +168,18 @@ function reSimulate() {
 
   let d = dyno;
   let _saveGear = JSON.parse(JSON.stringify(saveGear));
+  let runInfo = JSON.parse(JSON.stringify(saveRunInfo));
 
+  let lastRunIndex = 0;
   let oldRun = shownRun;
   startDyno();
   shouldRender = false;
   for (let i in data) {
     forceGearRatio = _saveGear[i];
+    if (lastRunIndex < runInfo[i]) nextRun();
     addDt(data[i]);
     
+    lastRunIndex = runInfo[i];
   }
   forceGearRatio = 0;
   shouldRender = true;
@@ -166,6 +189,8 @@ function reSimulate() {
 }
 function nextRun() {
   highestrpm = 0;
+  dts.length=0;
+  
   if (run) run.endTime = elapsedTime;
   run = new Run();
   run.startTime = elapsedTime;
@@ -177,6 +202,7 @@ function nextRun() {
   elem.innerText = s + 1;
   elem.onclick = () => {shownRun = s; render()}
   runSelector.appendChild(elem);
+  
 }
 
 function saveCurrentRun() {
@@ -203,7 +229,7 @@ let cum = 0;
 let preventDoubling = false;
 
 
-function addDt(__dt) {
+function addDt(__dt) {  
   let ratio = finalDrive * gears[gear - 1];
   if (forceGearRatio) ratio = forceGearRatio;
 
@@ -212,6 +238,7 @@ function addDt(__dt) {
   if (dyno) {
     saveDts.push(__dt);
     saveGear.push(ratio);
+    saveRunInfo.push(runs.indexOf(run));
     shownDts[0].push(new Vec(elapsedTime, __dt));
 
     let r = ratio / finalDrive;
@@ -262,6 +289,7 @@ function addDt(__dt) {
   if (autoShiftButton.checked && rpm < h * 0.9) {
     changeGear(1);
     ratio = finalDrive * gears[gear - 1];
+    h = 0;
   }
 
   h = Math.max(h, rpm);
@@ -270,14 +298,13 @@ function addDt(__dt) {
 
   if (shouldRender) updateGauges();
 
-  if (dyno) {
-    
+  if (dyno) {    
     shownDts[1].push(new Vec(elapsedTime, dt));
     rpms.push(new Vec(elapsedTime, rpm));
     saveSpeeds[0].push(new Vec(elapsedTime, speed));
 
     if (rpm > lastrpm && rpm < highestrpm) {
-      nextRun();
+      //nextRun();
     } 
 
     let A = ((speed - lastspeed) / 3.6) / dt;
@@ -310,7 +337,7 @@ function addDt(__dt) {
       rawRun.tq.push(new Vec(elapsedTime, torqueRaw));
     } 
 
-    highestrpm = Math.max(rpm, highestrpm);
+    highestrpm = Math.max(rpm, highestrpm);    
   }
 
   if (shouldRender) render();

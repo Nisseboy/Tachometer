@@ -6,7 +6,7 @@ let dummyDts = [];
 let growing = false;
 let lastDummyInterval;
 function connectDummy() {  
-  if (true) {
+  if (false) {
     let dummy = new Dummy();
 
     let i = 0;
@@ -27,6 +27,13 @@ function connectDummy() {
       let nextDt = nextInfo[0];
       let reps = info[1];
       let g = info[2];
+      let next = info[3];
+      if (next) {
+        nextRun();
+
+        
+      }
+      
 
       let step = (nextDt - startDt) / reps;
 
@@ -34,8 +41,10 @@ function connectDummy() {
       for (let j = 0; j < reps; j++) {
         gear = g;
         addDt(startDt + j * step);
+
         
       }
+      
     }
 
     stopDyno();
@@ -51,7 +60,12 @@ function connectDummy() {
       addDt(currentDt / 1000000 + Math.random() * 0.00001);
       //addDt(200 / 1000000);
       if (growing) currentDt *= 0.995;
-      if (currentDt < 5000) currentDt = 60000;
+      if (currentDt < 5000) {
+        currentDt = 60000;
+        if (dyno)nextRun();
+
+        
+      }
     }, 16);
   }
 }

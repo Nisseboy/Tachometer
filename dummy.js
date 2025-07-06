@@ -106,6 +106,8 @@ class Dummy {
       this.rpm = 1000;
       this.gear++;
       this.lastSpeed = 0;
+
+      dummyDts[dummyDts.length - 1][3] = true;
       
       return;
     }
