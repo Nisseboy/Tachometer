@@ -104,13 +104,14 @@ class Gauge {
 
     this.ctx.translate(size.x / 2, size.y / 2);
     this.ctx.rotate(Math.PI / 2);
+    this.ctx.fillStyle = "rgb(255, 0, 0)";
 
 
     for (let s of ss) {
       let rot = s / this.max * (this.fullRot) + this.minRot;
       this.ctx.rotate(rot);
 
-      let s2 = new Vec(60, 2);
+      let s2 = new Vec(60, 3);
 
       rect(this.ctx, new Vec(size.x / 2 - s2.x, -s2.y / 2), s2);
       this.ctx.fill();

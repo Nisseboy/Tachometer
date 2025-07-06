@@ -301,6 +301,7 @@ function addDt(__dt) {
   if (shouldRender) updateGauges();
 
   if (dyno) {    
+    
     shownDts[1].push(new Vec(elapsedTime, dt));
     rpms.push(new Vec(elapsedTime, rpm));
     saveSpeeds[0].push(new Vec(elapsedTime, speed));
@@ -439,7 +440,6 @@ function estimateDragArea() {
 
   
 
-  console.log(tqLow, tqHigh, rpmLow, rpmHigh);
   let fHigh = tqHigh * gearHigh / settings.wheelR;
   let fLow = tqLow * gearLow / settings.wheelR;
 
@@ -448,12 +448,12 @@ function estimateDragArea() {
   settings.dragArea = (fLow - fHigh) / (0.5 * AirDensity * (Math.pow(speedHigh / 3.6, 2) - Math.pow(speedLow / 3.6, 2)));
   console.log(settings.dragArea);
   
- /* let elems = [...document.getElementsByClassName("drag-area")];
+  let elems = [...document.getElementsByClassName("drag-area")];
   for (let e of elems) e.value = settings.dragArea;
   
   reSimulate();
   saveSettings();
-  */
+  
 }
 
 

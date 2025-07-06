@@ -28,21 +28,19 @@ function connectDummy() {
       let reps = info[1];
       let g = info[2];
       let next = info[3];
-      if (next) {
-        nextRun();
-
-        
-      }
       
 
       let step = (nextDt - startDt) / reps;
 
-        //console.log(elapsedTime, startDt, reps);
-      for (let j = 0; j < reps; j++) {
+      for (let j = 0; j < reps; j++) {        
         gear = g;
-        addDt(startDt + j * step);
+        addDt(startDt/* + j * step*/);
 
         
+      }
+      
+      if (next) {
+        nextRun(); 
       }
       
     }

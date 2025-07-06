@@ -60,59 +60,91 @@ class Dummy {
   }
   
   update(dt) {
-
     const gearRatio = gears[this.gear];
     const totalRatio = gearRatio * finalDrive;
+    const gear = this.gear + 1;
 
-    gear = this.gear + 1;
-
-
-    this.elapsedTime += dt;
-
+    // compute speed
     let speed = (this.rpm / (totalRatio * 60)) * (2 * Math.PI * settings.wheelR);
-    
+
+    // get torque and acceleration
     const torque = this.getTorqueAtRpm(this.rpm);
     const wheelTorque = torque * totalRatio;
-
     const fAero = 0.5 * this.dragArea * AirDensity * (speed ** 2);
-
     const force = wheelTorque / settings.wheelR - fAero;
     const acc = force / settings.inertia;
-    
 
-    speed += acc * dt;
+    // compute new speed/rpm
+    const newSpeed = speed + acc * dt;
+    const newRpm = newSpeed / (2 * Math.PI * settings.wheelR) * totalRatio * 60;
 
-    this.rpm = speed / (2 * Math.PI * settings.wheelR) * totalRatio * 60;
+    // average RPM during this timestep (assume linear)
+    const avgRpm = 0.5 * (this.rpm + newRpm);
+    const rotRate = avgRpm / 60;  // rotations per second
+    const rotThisStep = rotRate * dt;
 
-    this.rot += this.rpm / 60 * dt;
-    if (this.rot >= 1) {
-      
-      this.rot = 0;
+    if (this.rot + rotThisStep >= 1) {
+      // exact time when rotation completes: solve for t_hit
+      const rpmRate = (newRpm - this.rpm) / dt;
+      const rotRate0 = this.rpm / 60;
+      const rotRate1 = newRpm / 60;
 
-      let lastDt = dummyDts[dummyDts.length - 1];
-      if (lastDt && lastDt[0] == this.elapsedTime) {
-        lastDt[1]++;
-      } else {
-        dummyDts.push([this.elapsedTime, 1, gear]);
+      // integration of linear function: rot = ∫ (rotRate0 + slope * t) dt = 1
+      // rot(t) = rotRate0 * t + 0.5 * (rotRate1 - rotRate0) * t^2
+      const a = 0.5 * (rotRate1 - rotRate0);
+      const b = rotRate0;
+      const c = this.rot - 1;
+
+      // solve quadratic: a*t^2 + b*t + c = 0
+      const discriminant = b * b - 4 * a * c;
+      let t_hit = 0;
+
+      if (Math.abs(a) < 1e-6) {
+        t_hit = -c / b;  // linear case
+      } else if (discriminant >= 0) {
+        const sqrtD = Math.sqrt(discriminant);
+        t_hit = (-b + sqrtD) / (2 * a);
       }
-      
-      this.elapsedTime = 0;      
-      numHits = 0;
-    }
-    numHits++;
-    
-    
-    if (this.rpm > 12000 || speed - this.lastSpeed <= 0.000000001) {            
-      this.rpm = 1000;
-      this.gear++;
-      this.lastSpeed = 0;
 
-      dummyDts[dummyDts.length - 1][3] = true;
-      
+      t_hit = Math.min(Math.max(t_hit, 0), dt); // clamp to [0, dt]
+
+      this.elapsedTime += t_hit;
+
+      // exact gear pulse
+      dummyDts.push([this.elapsedTime, 1, gear]);
+
+      // update state at t_hit
+      const hitSpeed = speed + acc * t_hit;
+      this.rpm = hitSpeed / (2 * Math.PI * settings.wheelR) * totalRatio * 60;
+
+      this.rot = 0;
+      this.elapsedTime = 0;
+      numHits = 0;
+
+      // continue from t_hit to dt if needed
+      const remainingDt = dt - t_hit;
+      if (remainingDt > 0) this.update(remainingDt);
+
       return;
     }
 
-    this.lastSpeed = speed;
+    // no rotation event this step
+    this.rot += rotThisStep;
+    this.elapsedTime += dt;
+    numHits++;
+
+    this.rpm = newRpm;
+    this.lastSpeed = newSpeed;
+
+    if (this.rpm > 12000 || newSpeed - speed <= 1e-12) {
+      this.rpm = 1000;
+      this.gear++;
+      this.lastSpeed = 0;
+      this.rot = 0;
+      this.elapsedTime = 0;
+      
+      if (dummyDts.length > 0) dummyDts[dummyDts.length - 1][3] = true;
+    }
   }
 
 }

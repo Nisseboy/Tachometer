@@ -31,17 +31,21 @@ function removeSavedRun(run) {
 function renderSaved() {
   let rs = [];
   let lineInfo = [];
+  let tqI = 0;
+  let hpI = 0;
 
   for (let i in savedRuns) {
     let run = savedRuns[i];
 
     if (run.renderTQ) {
       rs.push(run.tq);
-      lineInfo.push({c: hsvToRgb(0.15 + i * 0.05, 1, 1), name: run.name + " - TQ"});
+      lineInfo.push({c: hsvToRgb(0.15 + tqI * 0.05, 1, 1), name: run.name + " - TQ"});
+      tqI++;
     }
     if (run.renderHP) {
       rs.push(run.hp);
-      lineInfo.push({c: hsvToRgb(0 + i * 0.05, 1, 1), name: run.name + " - HP"});
+      lineInfo.push({c: hsvToRgb(0 + hpI * 0.05, 1, 1), name: run.name + " - HP"});
+      hpI++;
     }
   }
   //let lineInfo = [{c: new Vec(255, 255, 0), name: "Torque (nm)"}, {c: new Vec(255, 0, 0), name: "Power (hp)"}];
