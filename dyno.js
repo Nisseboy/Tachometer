@@ -47,6 +47,7 @@ function createElement(type, props = {}, children = []) {
 
 let dtButton = document.getElementById("dt-button");
 let nameInput = document.getElementById("name-input");
+let autoShiftButton = document.getElementById("auto-shift");
 
 
 
