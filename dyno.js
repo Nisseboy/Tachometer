@@ -320,10 +320,14 @@ function addDt(__dt) {
     let torqueRaw = AA * (settings.inertia / (settings.engineInput?(1):ratio));*/
 
     let aeroForce = 0.5 * settings.dragArea * AirDensity * ((speed / 3.6) ** 2);
+    let rrForce = 0.015 * settings.inertia * 9.81;
     let aeroTorque = aeroForce * settings.wheelR / ratio;
+    let rrTorque = rrForce * settings.wheelR / ratio;
 
     let torque = torqueRaw;
-    if (torque > 0) torque += aeroTorque;
+    if (torque > 0) {
+      torque += aeroTorque + rrTorque;
+    }
     
     //console.log(rpm);
     
