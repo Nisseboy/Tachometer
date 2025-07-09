@@ -86,6 +86,7 @@ assignInput("wheelR", 0.3, "wheelR-input", true);
 assignInput("pulses", 5, "pulse-input", true);
 assignInput("average", 1, "average", true);
 assignInput("inertia", 165, "inertia", true);
+assignInput("transLoss", 0.1, "trans-loss", true);
 assignInput("dragArea", 0.6, "drag-area", true);
 assignInput("cutoff", 0, "cutoff", true);
 assignInput("engineInput", false, "engine-input", true);

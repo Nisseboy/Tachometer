@@ -326,6 +326,7 @@ function addDt(__dt) {
 
     let torque = torqueRaw;
     if (torque > 0) {
+      torque /= (1 - settings.transLoss);
       torque += aeroTorque + rrTorque;
     }
     

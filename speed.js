@@ -34,7 +34,7 @@ function calculateSpeed(currentPosition, currentTimestamp) {
     const distance = getDistance(lastPosition, currentPosition); // meters
     const timeElapsed = (currentTimestamp - lastTimestamp) / 1000; // seconds
 
-    console.log(lastPosition, currentPosition, timeElapsed, distance);
+    //console.log(lastPosition, currentPosition, timeElapsed, distance);
     
     lastPosition = currentPosition;
     lastTimestamp = currentTimestamp;

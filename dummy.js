@@ -69,7 +69,7 @@ class Dummy {
 
     // get torque and acceleration
     const torque = this.getTorqueAtRpm(this.rpm);
-    const wheelTorque = torque * totalRatio;
+    const wheelTorque = torque * totalRatio * (1 - settings.transLoss);
     const fAero = 0.5 * this.dragArea * AirDensity * (speed ** 2);
     const force = wheelTorque / settings.wheelR - fAero - 0.015 * settings.inertia * 9.81;
     const acc = force / settings.inertia;
@@ -181,7 +181,7 @@ class SimDummy extends Dummy {
 
     // get torque and acceleration
     const torque = this.getTorqueAtRpm(this.rpm);
-    const wheelTorque = torque * totalRatio;
+    const wheelTorque = torque * totalRatio * (1 - settings.transLoss);;
     const fAero = 0.5 * this.dragArea * AirDensity * (this.speed ** 2);
     const force = wheelTorque / settings.wheelR - fAero - 0.015 * settings.inertia * 9.81;
     const acc = force / settings.inertia;
