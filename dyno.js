@@ -66,7 +66,6 @@ let runs = [run];
 let shownRun = 0;
 
 let shouldRender = true;
-let forceGearRatio = 0;
 
 document.getElementById("dyno-button").onchange = e => {
   growing = true;
@@ -150,6 +149,7 @@ function startDyno() {
     }}),
   );
   elapsedTime = 0;
+  elapsedFrames = 0;
   runs = [];
   rawRun = new Run();
   nextRun();
@@ -177,13 +177,13 @@ function reSimulate() {
   startDyno();
   shouldRender = false;
   for (let i in data) {
-    forceGearRatio = _saveGear[i];
-    if (lastRunIndex < runInfo[i]) nextRun();
+    gear = _saveGear[i];
+    if (elapsedTime > runInfo[lastRunIndex]) {
+      if (runInfo[lastRunIndex] != 0) nextRun();
+      lastRunIndex++;
+    }
     addDt(data[i]);
-    
-    lastRunIndex = runInfo[i];
   }
-  forceGearRatio = 0;
   shouldRender = true;
   toggleDyno(d);
   shownRun = Math.min(oldRun, runs.length - 1);
@@ -192,6 +192,8 @@ function reSimulate() {
 function nextRun() {
   highestrpm = 0;
   dts.length=0;
+
+  saveRunInfo.push(elapsedTime);
   
   if (run) run.endTime = elapsedTime;
   run = new Run();
@@ -219,6 +221,7 @@ let rpm = undefined;
 let speed = undefined;
 let rpms = [];
 let elapsedTime = 0;
+let elapsedFrames = 0;
 let lastrpm = undefined;
 let lastspeed = undefined;
 let h = 0;
@@ -233,14 +236,13 @@ let preventDoubling = false;
 
 function addDt(__dt) {  
   let ratio = finalDrive * gears[gear - 1];
-  if (forceGearRatio) ratio = forceGearRatio;
 
   elapsedTime += __dt;
+  elapsedFrames += 1;
 
   if (dyno) {
     saveDts.push(__dt);
-    saveGear.push(ratio);
-    saveRunInfo.push(runs.indexOf(run));
+    saveGear.push(gear);
     shownDts[0].push(new Vec(elapsedTime, __dt));
 
     let r = ratio / finalDrive;
