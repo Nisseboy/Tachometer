@@ -89,6 +89,7 @@ assignInput("inertia", 165, "inertia", true);
 assignInput("transLoss", 0.1, "trans-loss", true);
 assignInput("dragArea", 0.6, "drag-area", true);
 assignInput("cutoff", 0, "cutoff", true);
+assignInput("audiothreshold", 0.5, "audiothreshold", false);
 assignInput("engineInput", false, "engine-input", true);
 assignInput("gpsSpeed", false, "gps-input", true, updateValues);
 

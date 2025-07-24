@@ -100,16 +100,15 @@ async function connectAudio() {
   source.connect(analyser);
 
   let lastPulseTime = null;
-  const threshold = 0.3; // Adjust as needed
   const buffer = new Float32Array(analyser.fftSize);
 
   function process() {
     analyser.getFloatTimeDomainData(buffer);
     for (let i = 1; i < buffer.length; i++) {
-      if (dtButton.value == 5) audioaa.push(buffer[i]);
-      if (audioaa.length >= 2**16) audioaa.shift();
+      if (dtButton.value == 5) audioaa.push(Math.max(buffer[i], 0));
+      if (audioaa.length >= 2**14) audioaa.shift();
       
-      if (buffer[i - 1] < threshold && buffer[i] >= threshold) {
+      if (buffer[i - 1] < settings.audiothreshold && buffer[i] >= settings.audiothreshold) {
         const now = audioCtx.currentTime + (i - buffer.length) / audioCtx.sampleRate;
         if (lastPulseTime !== null) {
           addDt(now - lastPulseTime);
