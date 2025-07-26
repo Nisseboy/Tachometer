@@ -38,6 +38,9 @@ class Dummy {
 
     this.rot = 0;
     this.elapsedTime = 0;
+
+    this.moiEngine = 0.007;
+    this.moiWheel = 0.55;
   }
 
   getTorqueAtRpm(rpm) {

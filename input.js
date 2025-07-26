@@ -1,4 +1,5 @@
 let inputsElem = document.getElementById("inputs");
+let audioPause = document.getElementById("audioPause");
 
 
 let dummyDts = [];
@@ -103,9 +104,10 @@ async function connectAudio() {
   const buffer = new Float32Array(analyser.fftSize);
 
   function process() {
+    let audioPaused = audioPause.checked;
     analyser.getFloatTimeDomainData(buffer);
     for (let i = 1; i < buffer.length; i++) {
-      if (dtButton.value == 5) audioaa.push(Math.max(buffer[i], 0));
+      if (dtButton.value == 5 && !audioPaused) audioaa.push(Math.max(buffer[i], 0));
       if (audioaa.length >= 2**14) audioaa.shift();
       
       if (buffer[i - 1] < settings.audiothreshold && buffer[i] >= settings.audiothreshold) {
